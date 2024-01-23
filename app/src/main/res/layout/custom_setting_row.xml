@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_gravity="center_vertical"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginBottom="@dimen/dp10"
+        android:layout_marginLeft="@dimen/dp18"
+        android:id="@+id/ivIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="@dimen/dp18"
+        android:src="@drawable/ic_logout" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        style="@style/setting_header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginBottom="@dimen/dp2"
+        android:layout_toRightOf="@+id/ivIcon"
+        android:text="No Data Available"></TextView>
+    <TextView
+        android:text="No Data Available"
+        android:layout_marginBottom="@dimen/dp10"
+        android:id="@+id/tvDetails"
+        style="@style/setting_detail_text"
+        android:layout_below="@+id/tvTitle"
+        android:layout_toRightOf="@+id/ivIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></TextView>
+    <View
+        android:layout_below="@+id/tvDetails"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/gray_200"/>
+</RelativeLayout>
+
+
+
+
