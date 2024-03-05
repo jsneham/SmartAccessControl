@@ -21,4 +21,12 @@
     <string name="title_home">Home</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="gps_enable">GPS enable</string>
+    <string name="please_turn_on_gps">Please turn on GPS</string>
+    <string name="ok">Ok</string>
+
+    <string name="something_wrong">Something went wrong! Please try again</string>
+    <string name="service_already_running">Location Service is already running</string>
+    <string name="service_start_successfully">Location Service start successfully</string>
+    <string name="enter_master_password">Enter Master Password</string>
 </resources>
