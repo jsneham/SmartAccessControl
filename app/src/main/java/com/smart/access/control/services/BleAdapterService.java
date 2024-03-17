@@ -61,12 +61,10 @@ public class BleAdapterService extends Service {
     public static final String PARCEL_TEXT = "TEXT";
 
     // service uuids
-    public static String ZISA_SERVICE_UUID = "574657c1-961e-4b97-a613-1aa893761179";
+    public static final String SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
 
     // service characteristics
-    public static String DOUBLE_CLICK_ALERT_LEVEL_CHARACTERISTIC = "b837dfc8-8b43-11ec-a8a3-0242ac120002";
-    public static String SINGLE_CLICK_ALERT_LEVEL_CHARACTERISTIC = "b837dfc8-8b43-11ec-a8a3-0242ac120002";
-    public static String WRITE_CHARACTERISTIC = "3a88c464-ff6d-4629-8a0d-60167f1ca847";
+    public static final String CHARACTERISTIC_UUID_TX = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";;
 
 
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";

@@ -25,6 +25,8 @@
             android:textSize="@dimen/sp16" />
 
         <EditText
+            android:maxLength="6"
+            android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp50"
             android:layout_margin="@dimen/dp12"
@@ -45,5 +47,10 @@
             android:text="Submit"
             android:textColor="@color/white"
             android:textSize="@dimen/sp16" />
+
+        <TextView
+            android:id="@+id/byteArray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </LinearLayout>

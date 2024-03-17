@@ -3,10 +3,10 @@ package com.smart.access.control.services;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.LocationManager;
@@ -17,7 +17,6 @@ import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -161,6 +160,30 @@ public class Utils {
             capitalizeWord+=first.toUpperCase()+afterfirst+" ";
         }
         return capitalizeWord.trim();
+    }
+
+
+    public static String stringToHex(String input) {
+        // Convert string to byte array
+        byte[] bytes = input.getBytes();
+
+        // Convert byte array to hexadecimal string
+        StringBuilder hexStringBuilder = new StringBuilder();
+        for (byte b : bytes) {
+            hexStringBuilder.append(String.format("%02X", b));
+        }
+
+        return hexStringBuilder.toString();
+    }
+
+    public static byte[] hexToByteArray(String hexString) {
+        int len = hexString.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+                    + Character.digit(hexString.charAt(i+1), 16));
+        }
+        return data;
     }
 
 }

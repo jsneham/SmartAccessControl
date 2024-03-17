@@ -5,7 +5,7 @@ public class Urls {
     public static String FIND = "Find Devices";
     public static String STOP_SCANNING = "Stop Scanning";
     public static String SCANNING = "Scanning";
-    private static final String DEVICE_NAME = "SAC";
+    public static final String DEVICE_NAME = "SAC";
 
 
 }
