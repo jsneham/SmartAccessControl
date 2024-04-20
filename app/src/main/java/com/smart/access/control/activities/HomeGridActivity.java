@@ -17,7 +17,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.smart.access.control.R;
+import com.smart.access.control.adapters.BleListAdapter;
 import com.smart.access.control.adapters.GridAdapter;
 import com.smart.access.control.services.BleAdapterService;
 import com.smart.access.control.services.BleScanner;
@@ -45,7 +48,7 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
 
     RecyclerView recyclerView;
     GridAdapter gridAdapter;
-
+    private ListView listView;
     private BleScanner bleScanner = null;
     private boolean permissionsGranted = false;
     private long scanTimeout = 5000;
@@ -66,6 +69,9 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
     private String deviceName = null;
     private String deviceAddress = null;
 
+    private BleListAdapter bleDeviceListAdapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +79,44 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
         setRecyclerView();
         startServices();
         checkPermissions();
+        initView();
+    }
+
+    private void initView() {
+        bleDeviceListAdapter = new BleListAdapter(this);
+        listView = findViewById(R.id.deviceList);
+        listView.setAdapter(bleDeviceListAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                if (ble_scanning) {
+                    bleScanner.stopScanning();
+                }
+
+                BluetoothDevice device = bleDeviceListAdapter.getDevice(position);
+                if (toast != null) {
+                    toast.cancel();
+                }
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                deviceName = device.getName();
+                deviceAddress = device.getAddress();
+                onConnect();
+
+            }
+        });
     }
 
     private void setRecyclerView() {
@@ -114,17 +158,39 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
         view.findViewById(R.id.btnSubmit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                String password = Utils.stringToHex(etPassword.getText().toString());
+//                String masterCommand = "0x020x810xFD0x060xFF" + password + "0x080x090x100xXX0xXX0x0D";
+//                byte[] byteArray = Utils.hexToByteArray(masterCommand);
+//
+//                String bt=" ";
+//                for(int i=0;i<=byteArray.length; i++){
+//                    bt = bt+ byteArray[i];
+//                    tvByteArray.setText(bt);
+//                }
+//
+//                senMsgToBleDevice(byteArray);
+
                 String password = Utils.stringToHex(etPassword.getText().toString());
-                String masterCommand = "0x020x810xFD0x060xFF" + password + "0x080x090x100xXX0xXX0x0D";
-                byte[] byteArray = Utils.hexToByteArray(masterCommand);
+                byte[] passwordByteArray = Utils.hexToByteArray(password);
 
-                String bt=" ";
-                for(int i=0;i<=byteArray.length; i++){
-                    bt = bt+ byteArray[i];
-                    tvByteArray.setText(bt);
-                }
+                byte[] startCommand = {0x02, (byte) 0x81,(byte)  0xFD, 0x06, (byte) 0xFF};
+                byte[] endCommand = {0x07, 0x08, 0x09, 0x10, (byte) 0xFF, (byte) 0xFF, 0x0D};
 
-                senMsgToBleDevice(byteArray);
+
+                // Calculate total length for the resulting byte array
+                int totalLength = passwordByteArray.length + startCommand.length + endCommand.length;
+
+// Create a new byte array to hold the combined data
+                byte[] combinedByteArray = new byte[totalLength];
+
+// Copy data into the combinedByteArray
+                int index = 0;
+                System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+                index += startCommand.length;
+                System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
+                index += passwordByteArray.length;
+                System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+                senMsgToBleDevice(combinedByteArray);
             }
         });
 

@@ -21,8 +21,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 
+import androidx.core.app.ActivityCompat;
 
 import com.smart.access.control.utils.Urls;
 
@@ -52,22 +52,27 @@ public class BleAdapterService extends Service {
     public static final int MESSAGE = 7;
     public static final int NOTIFICATION_OR_INDICATION_RECEIVED = 8;
 
+    public static final String SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+
+    // service characteristics
+    public static final String CHARACTERISTIC_UUID_TX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String CHARACTERISTIC_UUID_RX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; //"0000ffe2-0000-1000-8000-00805f9b34fb";
+
+    public static String CLIENT_CHARACTERISTIC_CONFIG = "2902";
+
+
     // message parms
     public static final String PARCEL_DESCRIPTOR_UUID = "DESCRIPTOR_UUID";
-    public static final String PARCEL_CHARACTERISTIC_UUID = "CHARACTERISTIC_UUID";
-    public static final String PARCEL_SERVICE_UUID = "SERVICE_UUID";
+    public static final String PARCEL_CHARACTERISTIC_UUID = CHARACTERISTIC_UUID_TX;
+    public static final String PARCEL_SERVICE_UUID = SERVICE_UUID;
     public static final String PARCEL_VALUE = "VALUE";
     public static final String PARCEL_RSSI = "RSSI";
     public static final String PARCEL_TEXT = "TEXT";
 
-    // service uuids
-    public static final String SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
-
-    // service characteristics
-    public static final String CHARACTERISTIC_UUID_TX = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";;
 
 
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+
+//    public static String CLIENT_CHARACTERISTIC_CONFIG = "2902";
 
     private boolean request_processor_running = false;
     private boolean connected = false;
@@ -306,29 +311,34 @@ public class BleAdapterService extends Service {
 
     public boolean writeCharacteristic(String serviceUuid, String characteristicUuid, byte[] value) {
 
-        Log.d(Urls.TAG, "writeCharacteristic serviceUuid=" + serviceUuid + " characteristicUuid=" + characteristicUuid);
-        if (bluetooth_adapter == null || bluetooth_gatt == null) {
-            sendConsoleMessage("writeCharacteristic: bluetooth_adapter|bluetooth_gatt null");
-            return false;
-        }
+        try {
+            Log.d(Urls.TAG, "writeCharacteristic serviceUuid=" + serviceUuid + " characteristicUuid=" + characteristicUuid);
+            if (bluetooth_adapter == null || bluetooth_gatt == null) {
+                sendConsoleMessage("writeCharacteristic: bluetooth_adapter|bluetooth_gatt null");
+                return false;
+            }
 
-        BluetoothGattService gattService = bluetooth_gatt.getService(java.util.UUID.fromString(serviceUuid));
-        if (gattService == null) {
-            sendConsoleMessage("writeCharacteristic: gattService null");
-            return false;
-        }
-        BluetoothGattCharacteristic gattChar = gattService.getCharacteristic(java.util.UUID.fromString(characteristicUuid));
-        if (gattChar == null) {
-            sendConsoleMessage("writeCharacteristic: gattChar null");
-            return false;
-        }
+            BluetoothGattService gattService = bluetooth_gatt.getService(java.util.UUID.fromString(serviceUuid));
+            if (gattService == null) {
+                sendConsoleMessage("writeCharacteristic: gattService null");
+                return false;
+            }
+            BluetoothGattCharacteristic gattChar = gattService.getCharacteristic(java.util.UUID.fromString(characteristicUuid));
+            if (gattChar == null) {
+                sendConsoleMessage("writeCharacteristic: gattChar null");
+                return false;
+            }
 
 
-        gattChar.setValue(value);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            return false;
+            gattChar.setValue(value);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+            return bluetooth_gatt.writeCharacteristic(gattChar);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return bluetooth_gatt.writeCharacteristic(gattChar);
+        return  false;
     }
 
 

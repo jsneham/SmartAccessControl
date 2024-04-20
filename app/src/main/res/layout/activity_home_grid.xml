@@ -7,12 +7,18 @@
     tools:context=".activities.HomeGridActivity">
 
     <include layout="@layout/main_toolbar"/>
+    <ListView
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/deviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp10" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:background="@color/gray_200"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/deviceList"
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:numColumns="2"/>
 </RelativeLayout>
