@@ -1,6 +1,7 @@
 package com.smart.access.control.services;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,7 +27,9 @@ import androidx.core.app.ActivityCompat;
 
 import com.smart.access.control.utils.Urls;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BleAdapterService extends Service {
 
@@ -58,24 +61,39 @@ public class BleAdapterService extends Service {
     public static final String CHARACTERISTIC_UUID_TX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
     public static final String CHARACTERISTIC_UUID_RX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; //"0000ffe2-0000-1000-8000-00805f9b34fb";
 
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "2902";
+    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 
 
     // message parms
     public static final String PARCEL_DESCRIPTOR_UUID = "DESCRIPTOR_UUID";
-    public static final String PARCEL_CHARACTERISTIC_UUID = CHARACTERISTIC_UUID_TX;
-    public static final String PARCEL_SERVICE_UUID = SERVICE_UUID;
+    public static final String PARCEL_CHARACTERISTIC_UUID = "CHARACTERISTIC_UUID";
+    public static final String PARCEL_SERVICE_UUID = "SERVICE_UUID";
     public static final String PARCEL_VALUE = "VALUE";
     public static final String PARCEL_RSSI = "RSSI";
     public static final String PARCEL_TEXT = "TEXT";
-
-
 
 
 //    public static String CLIENT_CHARACTERISTIC_CONFIG = "2902";
 
     private boolean request_processor_running = false;
     private boolean connected = false;
+
+
+
+    private final IBinder mBinder = new LocalBinder();
+    public class LocalBinder extends Binder {
+        // Method to retrieve the service instance
+        public BleAdapterService getService() {
+            return BleAdapterService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+
 
     public boolean isConnected() {
         return connected;
@@ -109,11 +127,31 @@ public class BleAdapterService extends Service {
             }
         }
 
+        @SuppressLint("MissingPermission")
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             sendConsoleMessage("Services Discovered");
-            Message msg = Message.obtain(activity_handler, GATT_SERVICES_DISCOVERED);
-            msg.sendToTarget();
+//            Message msg = Message.obtain(activity_handler, GATT_SERVICES_DISCOVERED);
+//            msg.sendToTarget();
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                // Iterate through services and characteristics
+                List<BluetoothGattService> services = gatt.getServices();
+                for (BluetoothGattService service : services) {
+                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                    for (BluetoothGattCharacteristic characteristic : characteristics) {
+                        // Check if characteristic supports notifications or indications
+                        if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            gatt.setCharacteristicNotification(characteristic, true);
+                            // Enable notification on the BLE device
+                            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                                    UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG));
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
+                        }
+                    }
+                }
+            }
+//
         }
 
         @Override
@@ -186,20 +224,7 @@ public class BleAdapterService extends Service {
     };
 
 
-    // service binder ////////////////
-    private final IBinder mBinder = new LocalBinder();
 
-
-    public class LocalBinder extends Binder {
-        public BleAdapterService getService() {
-            return BleAdapterService.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -275,6 +300,10 @@ public class BleAdapterService extends Service {
     // set activity the will receive the messages
     public void setActivityHandler(Handler handler) {
         activity_handler = handler;
+    }
+
+    public void removeActivityHandler() {
+        activity_handler = null;
     }
 
     // return list of supported services
@@ -393,6 +422,7 @@ public class BleAdapterService extends Service {
         msg.setData(data);
         msg.sendToTarget();
     }
+
 
 
 }

@@ -16,8 +16,15 @@ import java.util.ArrayList;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
     private ArrayList<SettingsMenu> localDataSet;
+    private OnItemClickListener listener;
 
+    public interface OnItemClickListener {
+        void onItemClick(SettingsMenu item);
+    }
 
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvTitle, tvDetails;
@@ -30,6 +37,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             tvDetails = view.findViewById(R.id.tvDetails);
             tvTitle = view.findViewById(R.id.tvTitle);
             ivIcon = view.findViewById(R.id.ivIcon);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(localDataSet.get(position));
+                        }
+                    }
+                }
+            });
         }
 
 

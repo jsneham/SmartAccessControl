@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp12"
+        android:layout_marginBottom="@dimen/dp12"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/setting_header_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp12"
+            android:fontFamily="@font/semi_bold"
+            android:gravity="center"
+            android:text="@string/delete_user"
+            android:textColor="@color/primary_500"
+            android:textSize="@dimen/sp16" />
+
+        <EditText
+            android:maxLength="3"
+            android:id="@+id/etInput"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@drawable/rectangle_shape"
+            android:fontFamily="@font/semi_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:hint="Enter Number"
+            android:textColor="@color/primary_500"
+            android:textSize="@dimen/sp14" />
+
+
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
+            android:fontFamily="@font/semi_bold"
+            android:text="Submit"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp16" />
+
+        <TextView
+            android:fontFamily="@font/bolditalic"
+            android:textSize="@dimen/sp18"
+            android:textColor="@color/red_600"
+            android:gravity="center"
+            android:visibility="gone"
+            android:text="Place the finger on sensor"
+            android:id="@+id/txtMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</LinearLayout>

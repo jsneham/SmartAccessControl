@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp12"
+        android:layout_marginBottom="@dimen/dp12"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnAddUser"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
+            android:fontFamily="@font/semi_bold"
+            android:text="Add User"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp16" />
+
+        <Button
+            android:id="@+id/btnDeleteUser"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
+            android:fontFamily="@font/semi_bold"
+            android:text="Delete User"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp16" />
+
+        <Button
+            android:id="@+id/btnDeleteAllUser"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
+            android:fontFamily="@font/semi_bold"
+            android:text="Delete All User"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp16" />
+
+        <Button
+            android:id="@+id/btnViewAllUser"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
+            android:fontFamily="@font/semi_bold"
+            android:text="View All User"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp16" />
+    </LinearLayout>
+</LinearLayout>

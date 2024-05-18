@@ -1,5 +1,7 @@
 package com.smart.access.control.services;
 
+import static com.smart.access.control.services.BleAdapterService.SERVICE_UUID;
+
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -25,7 +27,6 @@ public class BleScanner {
     private ScanResultsConsumer scan_results_consumer = null;
     private Context context = null;
     private boolean scanning = false;
-    private String MY_UUID = String.valueOf(UUID.fromString("574657c1-961e-4b97-a613-1aa893761179"));
 
     public BleScanner(Context context) {
         this.context = context;
@@ -76,7 +77,7 @@ public class BleScanner {
 
             this.scan_results_consumer = scan_results_consumer;
             ArrayList<ScanFilter> filters = new ArrayList();
-            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(MY_UUID.toString())).build();
+            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(SERVICE_UUID)).build();
             filters.add(filter);
             ScanSettings settings = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
             setScanning(true);

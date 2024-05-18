@@ -93,7 +93,7 @@ public class BleListAdapter extends BaseAdapter {
     public void addDevice(BluetoothDevice device) {
         if (!ble_devices.contains(device)) {
             ble_devices.add(device);
-//            notifyDataSetChanged();
+            notifyDataSetChanged();
         }
 //        notifyDataSetChanged();
     }

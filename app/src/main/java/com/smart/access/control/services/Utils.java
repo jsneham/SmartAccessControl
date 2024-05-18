@@ -64,6 +64,8 @@ public class Utils {
         alertDialog.show();
     }
 
+
+
     public boolean isOnline(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null) {
@@ -184,6 +186,48 @@ public class Utils {
                     + Character.digit(hexString.charAt(i+1), 16));
         }
         return data;
+    }
+
+
+    public static String convertByteHex(byte[] bytes) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : bytes) {
+            stringBuilder.append(String.format("%02X", b));
+        }
+        return stringBuilder.toString();
+    }
+
+    public static String[] convertByteHexArray(byte[] bytes) {
+        String[] hexStrings = new String[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            hexStrings[i] = String.format("%02X", bytes[i]);
+        }
+        return hexStrings;
+    }
+
+    public static byte[] convertHexByte(String hexString) {
+        // Remove any non-hex characters from the string
+        hexString = hexString.replaceAll("\\s+", ""); // Remove whitespace
+        hexString = hexString.replaceAll("[^A-Fa-f0-9]", "");
+
+        // If the string length is not even, add a leading zero
+        if (hexString.length() % 2 != 0) {
+            hexString = "0" + hexString;
+        }
+
+        // Convert each pair of hex characters to a byte
+        byte[] byteArray = new byte[hexString.length() / 2];
+        for (int i = 0; i < hexString.length(); i += 2) {
+            String byteString = hexString.substring(i, i + 2);
+            byteArray[i / 2] = (byte) Integer.parseInt(byteString, 16);
+        }
+
+        return byteArray;
+    }
+
+
+    public static String byteToHex(byte b) {
+        return String.format("%02X", b);
     }
 
 }

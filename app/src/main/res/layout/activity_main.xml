@@ -61,7 +61,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:text="test@gmail.com"
+            android:text="sne@gmail.com"
             android:fontFamily="@font/bold"
             android:paddingLeft="@dimen/dp15"
             android:paddingRight="@dimen/dp15"

@@ -29,4 +29,31 @@
     <string name="service_already_running">Location Service is already running</string>
     <string name="service_start_successfully">Location Service start successfully</string>
     <string name="enter_master_password">Enter Master Password</string>
+    <string name="faq">FAQ-\n\nHow to get master password?\nContact your device/lift provider\n\nSingle user deletion possible?\nYes\n\nWill be possible to delete all user ?\nYes"</string>
+    <string name="add_user">Add User</string>
+    <string name="term">Terms &amp; Conditions</string>
+    <string name="privacy">Privacy Policy</string>
+    <string name="about_us">Unleash Innovation with Embedded Electronics Solutions! We design cutting-edge electronic systems for diverse applications. Experts in industrial automation and more. Let\'s power your ideas!\n\n
+                #Lift/Elevator\n
+                #Customized Automation\n\n
+
+                Contact us\n
+                Corporate Office:\n
+                Advanced Brilliant Micro Technologies LLP,\n
+                #8, 90/5, 3rd A Cross,\n
+                Behind BBMP office,\n
+                Bellanduru, Bangalore, Karnataka.\n
+                Pin code 560103.\n
+                Tel: 9606009150\n
+                Email: abmtllp@gmail.com\n\n
+
+                Follow us on\n
+                Insta - abmt_llp\n
+                Facebook -\n
+                LinkedIn -\n
+                YouTube -\n
+</string>
+    <string name="delete_user">Delete User</string>
+    <string name="user_list">Users</string>
+
 </resources>

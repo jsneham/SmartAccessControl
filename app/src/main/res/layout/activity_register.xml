@@ -8,24 +8,24 @@
     tools:context=".activities.RegisterActivity">
 
     <ImageView
-        android:layout_alignParentTop="true"
         android:id="@+id/logo"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp150"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="@dimen/dp18"
-        android:layout_marginRight="@dimen/dp18"
         android:layout_marginTop="@dimen/dp18"
+        android:layout_marginRight="@dimen/dp18"
         android:src="@drawable/logo" />
 
     <ImageView
-        android:layout_alignParentTop="true"
-        android:onClick="onBack"
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="@dimen/dp18"
-        android:layout_marginRight="@dimen/dp18"
         android:layout_marginTop="@dimen/dp18"
+        android:layout_marginRight="@dimen/dp18"
+        android:onClick="onBack"
         android:src="@drawable/back_arrow" />
 
 
@@ -62,39 +62,42 @@
             android:textSize="@dimen/sp16" />
 
         <LinearLayout
-            android:weightSum="2"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
             <EditText
-                android:layout_weight="1"
                 android:id="@+id/etFirstName"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/dp45"
                 android:layout_margin="@dimen/dp4"
+                android:layout_weight="1"
                 android:background="@drawable/edittext_white_background"
                 android:hint="First Name"
-                android:inputType="number"
+                android:inputType="text"
                 android:maxLength="10"
                 android:paddingLeft="@dimen/dp15"
                 android:textColor="@color/theme_color_1"
                 android:textColorHint="#393F47"
                 android:textSize="@dimen/sp14" />
+
             <EditText
-                android:layout_weight="1"
                 android:id="@+id/etLastName"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/dp45"
                 android:layout_margin="@dimen/dp4"
+                android:layout_weight="1"
                 android:background="@drawable/edittext_white_background"
                 android:hint="Last Name"
-                android:inputType="number"
+                android:inputType="text"
                 android:maxLength="10"
                 android:paddingLeft="@dimen/dp15"
                 android:textColor="@color/theme_color_1"
                 android:textColorHint="#393F47"
                 android:textSize="@dimen/sp14" />
         </LinearLayout>
+
         <EditText
             android:id="@+id/etUserName"
             android:layout_width="match_parent"
@@ -122,7 +125,6 @@
             android:textSize="@dimen/sp14" />
 
 
-
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
@@ -136,6 +138,18 @@
             android:textColorHint="#393F47"
             android:textSize="@dimen/sp14" />
 
+        <EditText
+            android:id="@+id/etCPassword"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp45"
+            android:layout_margin="@dimen/dp4"
+            android:background="@drawable/edittext_white_background"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:paddingLeft="@dimen/dp15"
+            android:textColor="@color/theme_color_1"
+            android:textColorHint="#393F47"
+            android:textSize="@dimen/sp14" />
 
         <Button
             android:layout_width="@dimen/dp150"
@@ -154,28 +168,28 @@
 
 
     <LinearLayout
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="@dimen/dp18"
-        android:gravity="center|center_vertical"
-        android:layout_marginBottom="@dimen/dp9"
-        android:orientation="vertical"
         android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/dp18"
+        android:layout_marginBottom="@dimen/dp9"
+        android:gravity="center|center_vertical"
+        android:orientation="vertical">
 
 
         <TextView
-            android:onClick="onLoginClick"
-            android:textSize="@dimen/sp15"
-            android:fontFamily="@font/bold"
-            android:gravity="center|center_vertical"
-            android:layout_marginRight="@dimen/dp18"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp18"
             android:layout_marginTop="@dimen/dp18"
-            android:textColor="#B1B2B3"
+            android:layout_marginRight="@dimen/dp18"
+            android:fontFamily="@font/bold"
+            android:gravity="center|center_vertical"
+            android:onClick="onLoginClick"
             android:text="@string/regi_an_account"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textColor="#B1B2B3"
+            android:textSize="@dimen/sp15" />
     </LinearLayout>
 
 

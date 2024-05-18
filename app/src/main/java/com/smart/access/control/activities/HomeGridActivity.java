@@ -2,6 +2,7 @@ package com.smart.access.control.activities;
 
 import android.Manifest;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattService;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -43,6 +44,7 @@ import com.smart.access.control.utils.Urls;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class HomeGridActivity extends AppCompatActivity implements ScanResultsConsumer {
 
@@ -148,27 +150,27 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
 
 
     public void openMasterKeyPopUp() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.popup_master_key, null);
         builder.setView(view);
-        final AlertDialog dialog = builder.create();
+        final androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
         EditText etPassword= view.findViewById(R.id.etPassword);
         TextView tvByteArray= view.findViewById(R.id.byteArray);
         view.findViewById(R.id.btnSubmit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String password = Utils.stringToHex(etPassword.getText().toString());
-//                String masterCommand = "0x020x810xFD0x060xFF" + password + "0x080x090x100xXX0xXX0x0D";
-//                byte[] byteArray = Utils.hexToByteArray(masterCommand);
-//
-//                String bt=" ";
-//                for(int i=0;i<=byteArray.length; i++){
-//                    bt = bt+ byteArray[i];
-//                    tvByteArray.setText(bt);
-//                }
-//
-//                senMsgToBleDevice(byteArray);
+                //                String password = Utils.stringToHex(etPassword.getText().toString());
+                //                String masterCommand = "0x020x810xFD0x060xFF" + password + "0x080x090x100xXX0xXX0x0D";
+                //                byte[] byteArray = Utils.hexToByteArray(masterCommand);
+                //
+                //                String bt=" ";
+                //                for(int i=0;i<=byteArray.length; i++){
+                //                    bt = bt+ byteArray[i];
+                //                    tvByteArray.setText(bt);
+                //                }
+                //
+                //                senMsgToBleDevice(byteArray);
 
                 String password = Utils.stringToHex(etPassword.getText().toString());
                 byte[] passwordByteArray = Utils.hexToByteArray(password);
@@ -180,10 +182,10 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
                 // Calculate total length for the resulting byte array
                 int totalLength = passwordByteArray.length + startCommand.length + endCommand.length;
 
-// Create a new byte array to hold the combined data
+                // Create a new byte array to hold the combined data
                 byte[] combinedByteArray = new byte[totalLength];
 
-// Copy data into the combinedByteArray
+                // Copy data into the combinedByteArray
                 int index = 0;
                 System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
                 index += startCommand.length;
@@ -246,12 +248,40 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
                     break;
                 case BleAdapterService.GATT_CONNECTED:
                     showToast("CONNECTED", Toast.LENGTH_SHORT);
+                    bluetoothLeAdapter.discoverServices();
                     break;
                 case BleAdapterService.GATT_DISCONNECT:
                     showToast("DISCONNECTED", Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_SERVICES_DISCOVERED:
                     // validate services and if ok....
+                    List<BluetoothGattService> slist = bluetoothLeAdapter.getSupportedGattServices();
+                    if (slist != null) {
+                        for (BluetoothGattService svc : slist) {
+                            showToast("UUID=" + svc.getUuid().toString().toUpperCase() + " INSTANCE=" + svc.getInstanceId(), Toast.LENGTH_SHORT);
+
+                            if (svc.getUuid().toString().equalsIgnoreCase(BleAdapterService.SERVICE_UUID)) {
+                                showToast(" uuid found", Toast.LENGTH_SHORT);
+                                continue;
+                            }
+                        }
+
+                        //                        bluetoothLeAdapter.readCharacteristic(
+                        //                                BleAdapterService.SERVICE_UUID,
+                        //                                BleAdapterService.CHARACTERISTIC_UUID_RX
+                        //
+                        //                        );
+                        //                        bluetoothLeAdapter.setIndicationsState(
+                        //                                BleAdapterService.SERVICE_UUID,
+                        //                                BleAdapterService.CHARACTERISTIC_UUID_RX,
+                        //                                true
+                        //
+                        //                        );
+                    }
+
+
+
+
                     break;
                 case BleAdapterService.GATT_CHARACTERISTIC_READ:
                     bundle = msg.getData();
@@ -264,6 +294,12 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
                             " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase());
                     break;
                 case BleAdapterService.NOTIFICATION_OR_INDICATION_RECEIVED:
+                    bundle = msg.getData();
+                    String passwordReply=  Utils.convertByteHex((byte[]) bundle.get("VALUE"));
+                    checkPassword(passwordReply);
+                    Log.d("TAG", "Service=" + bundle.getString(BleAdapterService.PARCEL_SERVICE_UUID).toUpperCase() +
+                            " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase());
+
                     break;
             }
         }
@@ -451,4 +487,8 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
 //        }
 //    }
 
+    private void checkPassword(String passwordReply) {
+        showToast(passwordReply, Toast.LENGTH_SHORT);
+
+    }
 }
