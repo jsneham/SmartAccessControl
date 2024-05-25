@@ -230,4 +230,27 @@ public class Utils {
         return String.format("%02X", b);
     }
 
+    public static String convertHexStringValue(byte[] byteStrings) {
+        StringBuilder builder = new StringBuilder();
+
+        for (byte byteString : byteStrings) {
+            char character = (char) (byteString & 0xFF); // Convert signed byte to unsigned int and then to character
+            builder.append(character);
+        }
+
+
+        return builder.toString();
+    }
+
+    public static int getInt(byte[] bytes, int offset, int length) {
+        if (length > 4 || length <= 0) {
+            throw new IllegalArgumentException("Invalid length for integer conversion");
+        }
+
+        int result = 0;
+        for (int i = 0; i < length; i++) {
+            result |= (bytes[offset + i] & 0xFF) << (8 * (length - 1 - i));
+        }
+        return result;
+    }
 }

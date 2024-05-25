@@ -20,32 +20,37 @@
             android:layout_margin="@dimen/dp12"
             android:fontFamily="@font/semi_bold"
             android:gravity="center"
-            android:text="@string/user_list"
+            android:text="Change Device Name"
             android:textColor="@color/primary_500"
             android:textSize="@dimen/sp16" />
 
-        <ListView
-            android:id="@+id/lvUsers"
+        <EditText
+            android:maxLength="10"
+            android:id="@+id/etDeviceName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp50"
             android:layout_margin="@dimen/dp12"
             android:background="@drawable/rectangle_shape"
             android:fontFamily="@font/semi_bold"
             android:gravity="center"
+            android:hint="Enter Device Name"
             android:textColor="@color/primary_500"
             android:textSize="@dimen/sp14" />
 
-        <TextView
-            android:visibility="gone"
-            android:id="@+id/tvNoUser"
-            style="@style/setting_header_text"
+        <Button
+            android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp50"
             android:layout_margin="@dimen/dp12"
+            android:background="@color/theme_color_1"
             android:fontFamily="@font/semi_bold"
-            android:gravity="center"
-            android:text="No Data Found"
-            android:textColor="@color/red_400"
+            android:text="Submit"
+            android:textColor="@color/white"
             android:textSize="@dimen/sp16" />
+
+        <TextView
+            android:id="@+id/byteArray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </LinearLayout>

@@ -4,6 +4,7 @@ package com.smart.access.control.fragments;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattService;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -95,6 +97,8 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     GridAdapter gridAdapter;
     //    private static final long DELAY_TIME_MS = 10 * 60 * 1000; //10 Minute
     private static final long DELAY_TIME_MS = 10 * 1000; //10 Second
+    private boolean isBLEDeviceConnected =false;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -128,19 +132,23 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         gridAdapter.setOnItemClickListener(new GridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
+                if (bluetoothLeAdapter.isConnected() && isBLEDeviceConnected) {
+                    switch (position) {
+                        case 0:
 
-                switch (position) {
-                    case 0:
-                        if (bluetoothLeAdapter.isConnected()) {
                             openMasterKeyPopUp();
-                        } else {
-                            showToast("Device is not connected,Please connect to ABMT", Toast.LENGTH_SHORT);
-                        }
-                        break;
-                    case 1:
-                        sendEnableTempAccess();
-                        break;
 
+                            break;
+                        case 1:
+                            sendEnableTempAccess();
+                            break;
+
+                    }
+                } else {
+                    if(deviceName==null){
+                        showToast("Device is not connected.", Toast.LENGTH_SHORT);
+                    }
+                   else  showToast("Device is not connected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
                 }
 
 
@@ -149,6 +157,24 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     }
 
     private void sendEnableTempAccess() {
+        byte[] randomTenDigitArray = {0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+
+        byte[] startCommand = {0x02, (byte) 0x87, (byte) 0xFD, 0x00, (byte) 0xFF};
+        byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+        int totalLength = randomTenDigitArray.length + startCommand.length + endCommand.length;
+
+        // Create a new byte array to hold the combined data
+        byte[] combinedByteArray = new byte[totalLength];
+
+        // Copy data into the combinedByteArray
+        int index = 0;
+        System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+        index += startCommand.length;
+        System.arraycopy(randomTenDigitArray, 0, combinedByteArray, index, randomTenDigitArray.length);
+        index += randomTenDigitArray.length;
+        System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+        senMsgToBleDevice(combinedByteArray);
     }
 
     private void init() {
@@ -205,6 +231,9 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 //            }
 //        }
     }
+
+
+
 
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -279,11 +308,38 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             if (bluetoothLeAdapter.connect(deviceAddress)) {
                 showToast("onConnect: connect", Toast.LENGTH_SHORT);
             } else {
+                isBLEDeviceConnected=false;
                 showToast("onConnect: failed to connect", Toast.LENGTH_SHORT);
             }
         } else {
+            isBLEDeviceConnected=false;
             showToast("onConnect: bluetooth_le_adapter=null", Toast.LENGTH_SHORT);
         }
+
+//        startTimerForPopup();
+    }
+
+    private void startTimerForPopup() {
+        // Create a Handler to run the code after 10 seconds
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("connecting to " +deviceName +" ...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false); // Prevent dismissing by tapping outside
+        progressDialog.show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.dismiss();
+                if(isBLEDeviceConnected){
+                    showToast("Connected to " +deviceName , Toast.LENGTH_SHORT);
+                }
+                else {
+                    showToast("Device is not connected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
+                }
+
+            }
+        }, 20000); // 10 seconds delay
     }
 
 
@@ -316,7 +372,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             // for ActivityCompat#requestPermissions for more details.
             return false;
         }
-        return pairedDeviceNames.contains("ABMT");
+        return pairedDeviceNames.contains("");
     }
 
     private Set<String> getPairedDeviceNames() {
@@ -394,8 +450,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     }
 
 
-
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -419,9 +473,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         showToast("Ready to find BLE devices", Toast.LENGTH_SHORT);
         bleScanner = new BleScanner(context);
     }
-
-
-
 
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -457,11 +508,15 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                     showToast(bundle.getString(BleAdapterService.PARCEL_TEXT), Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_CONNECTED:
-                    showToast("CONNECTED", Toast.LENGTH_SHORT);
+                    startTimerForPopup();
+                    showToast("Device is Connected", Toast.LENGTH_SHORT);
                     bluetoothLeAdapter.discoverServices();
                     break;
                 case BleAdapterService.GATT_DISCONNECT:
-                    showToast("DISCONNECTED", Toast.LENGTH_SHORT);
+                    if(progressDialog!= null && progressDialog.isShowing()){
+                        progressDialog.dismiss();
+                    }
+                    showToast("Device is disconnected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_SERVICES_DISCOVERED:
                     // validate services and if ok....
@@ -492,8 +547,14 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                 case BleAdapterService.NOTIFICATION_OR_INDICATION_RECEIVED:
                     bundle = msg.getData();
                     Log.d("TAG", "NOTIFICATION_OR_INDICATION_RECEIVED: " + (byte[]) bundle.get("VALUE"));
-                    String[] passwordReply = Utils.convertByteHexArray((byte[]) bundle.get("VALUE"));
-                    checkResponse(passwordReply);
+                    if(bundle.get("VALUE").equals("AuthenticationDone")){
+                        isBLEDeviceConnected=true;
+                    }
+                    else {
+                        String[] passwordReply = Utils.convertByteHexArray((byte[]) bundle.get("VALUE"));
+                        checkResponse(passwordReply);
+                    }
+
                     Log.d("TAG", "Service=" + bundle.getString(BleAdapterService.PARCEL_SERVICE_UUID).toUpperCase() +
                             " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase());
 
@@ -597,7 +658,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             public void onClick(View v) {
 
 
-                if(etPassword.getText().toString().length()<6){
+                if (etPassword.getText().toString().length() < 6) {
                     etPassword.setError("Please enter valid Password");
                     return;
                 }
@@ -639,7 +700,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                 showToast("No value received by ble device", Toast.LENGTH_SHORT);
             }
         } else {
-            showToast("Please connect to SAC first before write Characteristic", Toast.LENGTH_SHORT);
+            showToast("Please connect to your device first before write Characteristic", Toast.LENGTH_SHORT);
         }
 
     }
@@ -656,45 +717,20 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                 case ReplyCode.PASSWORD_WRONG:
                     showToast("Password wrong", Toast.LENGTH_SHORT);
                     break;
-                case ReplyCode.SYSTEM_BUSY_PASSWORD:
+                case ReplyCode.SYSTEM_BUSY:
                     showToast("System Busy", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.OPERATION_NOT_ALLOWED:
                     showToast("OPERATION_NOT_ALLOWED", Toast.LENGTH_SHORT);
                     break;
-                case ReplyCode.USER_REGISTRATION_SUCCESSFUL:
-                    showToast("USER_REGISTRATION_SUCCESSFUL", Toast.LENGTH_SHORT);
+
+                case ReplyCode.TEMP_ACCESS_GRANTED:
+                    showToast("TEMP_ACCESS_GRANTED", Toast.LENGTH_SHORT);
                     break;
-                case ReplyCode.USER_REGISTRATION_FAILED:
-                    showToast("USER_REGISTRATION_FAILED", Toast.LENGTH_SHORT);
+                case ReplyCode.TEMP_ACCESS_DECLINE:
+                    showToast("TEMP_ACCESS_DECLINE", Toast.LENGTH_SHORT);
                     break;
-                case ReplyCode.USER_ALREADY_EXIST:
-                    showToast("USER_ALREADY_EXIST", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.USER_REGISTRATION_IN_PROCESS:
-                    showToast("USER_REGISTRATION_IN_PROCESS", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.REMOVE_FINGER:
-                    showToast("REMOVE_FINGER", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.PLACE_FINGER:
-                    showToast("PLACE_FINGER", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.PLACE_SAME_FINGER_AGAIN:
-                    showToast("PLACE_SAME_FINGER_AGAIN", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.USER_REGISTRATION_TIMEOUT:
-                    showToast("USER_REGISTRATION_TIMEOUT", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.USER_FINGER_IMAGE_TOO_NOISY:
-                    showToast("USER_FINGER_IMAGE_TOO_NOISY", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.USER_FINGER_SENSOR_ISSUE:
-                    showToast("USER_FINGER_SENSOR_ISSUE", Toast.LENGTH_SHORT);
-                    break;
-                case ReplyCode.USER_FINGER_NOT_PLACED_PROPERLY:
-                    showToast("USER_FINGER_NOT_PLACED_PROPERLY", Toast.LENGTH_SHORT);
-                    break;
+
                 default:
                     showToast("Some Error", Toast.LENGTH_SHORT);
                     break;
@@ -716,7 +752,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 //            }
 //        }, DELAY_TIME_MS);
     }
-
 
 
 //    @Override
@@ -766,8 +801,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         // Check if the BleAdapterService is running and bind to it if necessary
         if (!isMyServiceRunning(BleAdapterService.class)) {
             startServices();
-        }
-        else{
+        } else {
             if (bluetoothLeAdapter != null) {
                 bluetoothLeAdapter.removeActivityHandler();
                 bluetoothLeAdapter.setActivityHandler(messageHandler);
@@ -795,9 +829,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             bleScanner.stopScanning();
         }
     }
-
-
-
 
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {

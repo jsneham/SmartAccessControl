@@ -1,5 +1,7 @@
 package com.smart.access.control.activities;
 
+import java.util.Arrays;
+
 public class UserData {
     private byte[] userName;
     private byte[] userId;
@@ -11,6 +13,10 @@ public class UserData {
     // Parameterized constructor
     public UserData(byte[] userName, byte[] userId) {
         this.userName = userName;
+        this.userId = userId;
+    }
+
+    public UserData(byte[] userId) {
         this.userId = userId;
     }
 
@@ -30,5 +36,10 @@ public class UserData {
     public void setUserId(byte[] userId) {
         this.userId = userId;
     }
+
+    public String getUserIdAsString() {
+        return Arrays.toString(userId);
+    }
+
 }
 

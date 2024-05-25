@@ -3,7 +3,7 @@ package com.smart.access.control.constants;
 public class ReplyCode {
     public static final String PASSWORD_MATCH = "10";
     public static final String PASSWORD_WRONG = "11";
-    public static final String SYSTEM_BUSY_PASSWORD = "00";
+    public static final String SYSTEM_BUSY = "00";
     public static final String OXFF = "FF";
     public static final String OX00 = "00";
     public static final String OX10 = "10";
@@ -29,27 +29,30 @@ public class ReplyCode {
     public static final String USER_DETAILS_SHARING_COMPLETE = "2A";
     public static final String DELETE_ALL_USER_SUCCESSFUL = "2D";
     public static final String DELETE_ALL_USER_DECLINE = "3D";
-    public static final String OX30 = "30";
-    public static final String OX31 = "31";
-    public static final String OX32 = "32";
-    public static final String OX33 = "33";
-    public static final String OX34 = "34";
-    public static final String OX35 = "35";
+    public static final String TEMP_ACCESS_GRANTED = "30";
+    public static final String TEMP_ACCESS_DECLINE = "40";
+    public static final String ACCESS_GRANTED_FOR_X_DAYS = "31";
+    public static final String ACCESS_DECLINE_FOR_X_DAYS = "41";
+    public static final String MASTER_PASSWORD_UPDATE_SUCCESSFULLY = "32";
+    public static final String MASTER_PASSWORD_UPDATE_DECLINE = "42";
+    public static final String BT_PASSWORD_UPDATE_SUCCESSFULLY = "33";
+    public static final String FS_PASSWORD_UPDATE_SUCCESSFULLY = "34";
+    public static final String DEVICE_NAME_UPDATE_SUCCESSFULLY = "35";
     public static final String OX36 = "36";
-    public static final String OX37 = "37";
+    public static final String DEVICE_TYPE_UPDATE_SUCCESSFULLY = "37";
+    public static final String DEVICE_TYPE_UPDATE_DECLINE = "47";
     public static final String OX38 = "38";
-    public static final String OX39 = "39";
-    public static final String OX40 = "40";
-    public static final String OX41 = "41";
-    public static final String OX42 = "42";
-    public static final String OX43 = "43";
-    public static final String OX44 = "44";
-    public static final String OX45 = "45";
+
+
+    public static final String BT_PASSWORD_UPDATE_DECLINE = "43";
+    public static final String FS_PASSWORD_UPDATE_DECLINE = "44";
+    public static final String DEVICE_NAME_UPDATE_DECLINE = "45";
     public static final String OX46 = "46";
-    public static final String OX47 = "47";
+
     public static final String OX48 = "48";
-    public static final String OX49 = "49";
-    public static final String OX3A = "3A";
-    public static final String OX3B = "3B";
+    public static final String FLOOR_ACCESS_INFORMATION = "39";
+    public static final String FLOOR_ACCESS_INFORMATION_DECLINE = "49";
+    public static final String DEVICE_TYPE_INFORMATION = "3A";
+    public static final String DEVICE_TYPE_INFORMATION_DECLINE = "3B";
 }
 

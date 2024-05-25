@@ -75,7 +75,7 @@ public class BleListAdapter extends BaseAdapter {
             } else {
                 viewHolder.text.setText("unknown device");
             }
-            viewHolder.bdaddr.setText(device.getAddress());
+//            viewHolder.bdaddr.setText(device.getAddress());
         }
         return view;
     }

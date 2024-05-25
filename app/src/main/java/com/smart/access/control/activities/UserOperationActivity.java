@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattService;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -43,6 +44,7 @@ import com.smart.access.control.constants.ReplyCode;
 import com.smart.access.control.services.BleAdapterService;
 import com.smart.access.control.services.LocationService;
 import com.smart.access.control.services.Utils;
+import com.smart.access.control.utils.RandomHexBytesUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,7 @@ public class UserOperationActivity extends AppCompatActivity {
 
     private BleAdapterService bluetoothLeAdapter;
 
-    private ArrayList<UserData>  userDetailsList = new ArrayList();
+    private ArrayList<UserData> userDetailsList = new ArrayList();
     private static final int REQUEST_PERMISSION_CODE = 123;
     private final String[] PERMISSIONS_LOCATION = {
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -92,15 +94,30 @@ public class UserOperationActivity extends AppCompatActivity {
 
     }
 
-    private void setRecyclerView() {
-
-
-        ArrayList<String> itemList = new ArrayList<>();
+    @NonNull
+    private static ArrayList<String> getStringArrayList() {
+        ArrayList<String> itemList = new ArrayList<String>();
         itemList.add("Add User");
         itemList.add("Delete User");
         itemList.add("Delete All User");
         itemList.add("View All User");
         itemList.add("Read Specific User");
+        itemList.add("Enable Access for  X days");
+        itemList.add("Change Master Password");
+        itemList.add("Change BT Password");
+        itemList.add("Change FS Password");
+        itemList.add("Change Device Name");
+        itemList.add("Change Relay On Time");
+        itemList.add("Change Device Type");
+        itemList.add("Change Floor Access");
+        itemList.add("Read Floor Access");
+        itemList.add("Read Device Type");
+        return itemList;
+    }
+
+    private void setRecyclerView() {
+
+        ArrayList<String> itemList = getStringArrayList();
 
         recyclerView = findViewById(R.id.recyclerView);
         gridAdapter = new GridAdapter(this, itemList);
@@ -126,7 +143,37 @@ public class UserOperationActivity extends AppCompatActivity {
                         break;
 
                     case 4:
-                        openViewUserPopUp();
+                        readSpecificUserPopUp();
+                        break;
+                    case 5:
+                        enableAccessForXDaysPopUp();
+                        break;
+                    case 6:
+                        changeMasterPopUp();
+                        break;
+                    case 7:
+                        changeBtPopUp();
+                        break;
+                    case 8:
+                        changeFsPopUp();
+                        break;
+                    case 9:
+                        changeDeviceNamePopUp();
+                        break;
+                    case 10:
+                        changeRelayOnTimePopUp();
+                        break;
+                    case 11:
+                        changeDeviceTypePopUp();
+                        break;
+                    case 12:
+                        changeFloorAccess();
+                        break;
+                    case 13:
+                        readFloorAccess();
+                        break;
+                    case 14:
+                        readDeviceType();
                         break;
                 }
 
@@ -134,9 +181,258 @@ public class UserOperationActivity extends AppCompatActivity {
         });
     }
 
+    private void readDeviceType() {
+        byte[] randomTenDigitArray = RandomHexBytesUtil.generateRandomBytes(10);
+
+        byte[] startCommand = {0x02, (byte) 0x91, (byte) 0xFD, 0x00, (byte) 0xFF};
+        byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+        int totalLength = randomTenDigitArray.length + startCommand.length + endCommand.length;
+
+        // Create a new byte array to hold the combined data
+        byte[] combinedByteArray = new byte[totalLength];
+
+        // Copy data into the combinedByteArray
+        int index = 0;
+        System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+        index += startCommand.length;
+        System.arraycopy(randomTenDigitArray, 0, combinedByteArray, index, randomTenDigitArray.length);
+        index += randomTenDigitArray.length;
+        System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+        senMsgToBleDevice(combinedByteArray);
+    }
+
+    private void readFloorAccess() {
+
+        byte[] randomTenDigitArray = RandomHexBytesUtil.generateRandomBytes(10);
+
+        byte[] startCommand = {0x02, (byte) 0x90, (byte) 0xFD, 0x00, (byte) 0xFF};
+        byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+        int totalLength = randomTenDigitArray.length + startCommand.length + endCommand.length;
+
+        // Create a new byte array to hold the combined data
+        byte[] combinedByteArray = new byte[totalLength];
+
+        // Copy data into the combinedByteArray
+        int index = 0;
+        System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+        index += startCommand.length;
+        System.arraycopy(randomTenDigitArray, 0, combinedByteArray, index, randomTenDigitArray.length);
+        index += randomTenDigitArray.length;
+        System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+        senMsgToBleDevice(combinedByteArray);
+    }
+
+    private void changeFloorAccess() {
+        showToast(" changeFloorAccess ", Toast.LENGTH_SHORT);
+    }
+
+    private void changeDeviceTypePopUp() {
+        byte[] randomTenDigitArray = RandomHexBytesUtil.generateRandomBytes(10);
+
+        byte[] startCommand = {0x02, (byte) 0x8E, (byte) 0xFD, 0x0A, (byte) 0xFF};
+        byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+        int totalLength = randomTenDigitArray.length + startCommand.length + endCommand.length;
+
+        // Create a new byte array to hold the combined data
+        byte[] combinedByteArray = new byte[totalLength];
+
+        // Copy data into the combinedByteArray
+        int index = 0;
+        System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+        index += startCommand.length;
+        System.arraycopy(randomTenDigitArray, 0, combinedByteArray, index, randomTenDigitArray.length);
+        index += randomTenDigitArray.length;
+        System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+        senMsgToBleDevice(combinedByteArray);
+    }
+
+    private void changeRelayOnTimePopUp() {
+        showToast(" changeRelayOnTimePopUp ", Toast.LENGTH_SHORT);
+    }
+
+
+    private void changeDeviceNamePopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.change_device_name_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        EditText etDeviceName = view.findViewById(R.id.etDeviceName);
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        btnSubmit.setOnClickListener(v -> {
+            String deviceName = etDeviceName.getText().toString();
+
+            if (deviceName.length() > 10) {
+                etDeviceName.setError("Please Enter Valid Device Name");
+                return;
+            }
+            String name = Utils.stringToHex(deviceName);
+            byte[] deviceNameByteArray = Utils.hexToByteArray(name);
+
+            byte[] startCommand = {0x02, (byte) 0x8C, (byte) 0xFD, 0x0A, (byte) 0xFF};
+            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+            // Calculate total length for the resulting byte array
+            int totalLength = deviceNameByteArray.length + startCommand.length + endCommand.length;
+
+            // Create a new byte array to hold the combined data
+            byte[] combinedByteArray = new byte[totalLength];
+
+            // Copy data into the combinedByteArray
+            int index = 0;
+            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+            index += startCommand.length;
+            System.arraycopy(deviceNameByteArray, 0, combinedByteArray, index, deviceNameByteArray.length);
+            index += deviceNameByteArray.length;
+            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+            senMsgToBleDevice(combinedByteArray);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    private void changeFsPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.change_fs_password_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        EditText etPassword = view.findViewById(R.id.etPassword);
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        btnSubmit.setOnClickListener(v -> {
+            String numberInput = etPassword.getText().toString();
+
+//            if (Integer.parseInt(numberInput) > 65535) {
+//                etPassword.setError("Please Enter Password");
+//                return;
+//            }
+            String number = Utils.stringToHex(numberInput);
+            byte[] passwordByteArray = Utils.hexToByteArray(number);
+            byte[] random4ByteArray = RandomHexBytesUtil.generateRandomBytes(4);
+
+
+            byte[] startCommand = {0x02, (byte) 0x8B, (byte) 0xFD, 0x02, (byte) 0xFF};
+            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+            // Calculate total length for the resulting byte array
+            int totalLength = passwordByteArray.length + random4ByteArray.length + startCommand.length + endCommand.length;
+
+            // Create a new byte array to hold the combined data
+            byte[] combinedByteArray = new byte[totalLength];
+
+            // Copy data into the combinedByteArray
+            int index = 0;
+            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+            index += startCommand.length;
+            System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
+            index += passwordByteArray.length;
+            System.arraycopy(random4ByteArray, 0, combinedByteArray, index, random4ByteArray.length);
+            index += random4ByteArray.length;
+            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+            senMsgToBleDevice(combinedByteArray);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    private void changeBtPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.change_bluetooth_password_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        EditText etPassword = view.findViewById(R.id.etPassword);
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        btnSubmit.setOnClickListener(v -> {
+            String numberInput = etPassword.getText().toString();
+
+//            if (Integer.parseInt(numberInput) > 999999) {
+//                etPassword.setError("Please Enter Password");
+//                return;
+//            }
+            String number = Utils.stringToHex(numberInput);
+            byte[] passwordByteArray = Utils.hexToByteArray(number);
+            byte[] random4ByteArray = RandomHexBytesUtil.generateRandomBytes(4);
+
+
+            byte[] startCommand = {0x02, (byte) 0x8A, (byte) 0xFD, 0x03, (byte) 0xFF};
+            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+            // Calculate total length for the resulting byte array
+            int totalLength = passwordByteArray.length + random4ByteArray.length + startCommand.length + endCommand.length;
+
+            // Create a new byte array to hold the combined data
+            byte[] combinedByteArray = new byte[totalLength];
+
+            // Copy data into the combinedByteArray
+            int index = 0;
+            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+            index += startCommand.length;
+            System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
+            index += passwordByteArray.length;
+            System.arraycopy(random4ByteArray, 0, combinedByteArray, index, random4ByteArray.length);
+            index += random4ByteArray.length;
+            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+            senMsgToBleDevice(combinedByteArray);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    private void changeMasterPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.change_master_key_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        EditText etPassword = view.findViewById(R.id.etPassword);
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        btnSubmit.setOnClickListener(v -> {
+            String numberInput = etPassword.getText().toString();
+
+//            if (Integer.parseInt(numberInput) > 999999) {
+//                etPassword.setError("Please Enter Password");
+//                return;
+//            }
+            String number = Utils.stringToHex(numberInput);
+            byte[] passwordByteArray = Utils.hexToByteArray(number);
+            byte[] random4ByteArray = RandomHexBytesUtil.generateRandomBytes(4);
+
+
+            byte[] startCommand = {0x02, (byte) 0x89, (byte) 0xFD, 0x03, (byte) 0xFF};
+            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+            // Calculate total length for the resulting byte array
+            int totalLength = passwordByteArray.length + random4ByteArray.length + startCommand.length + endCommand.length;
+
+            // Create a new byte array to hold the combined data
+            byte[] combinedByteArray = new byte[totalLength];
+
+            // Copy data into the combinedByteArray
+            int index = 0;
+            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+            index += startCommand.length;
+            System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
+            index += passwordByteArray.length;
+            System.arraycopy(random4ByteArray, 0, combinedByteArray, index, random4ByteArray.length);
+            index += random4ByteArray.length;
+            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+            senMsgToBleDevice(combinedByteArray);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
 
     private void openViewAllUserPopUp() {
-        byte[] userNameByteArray = {0x02,0x03,0x04,0x05,0x06,0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+        byte[] userNameByteArray = {0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
 
         byte[] startCommand = {0x02, (byte) 0x85, (byte) 0xFD, 0x00, (byte) 0xFF};
         byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
@@ -158,7 +454,65 @@ public class UserOperationActivity extends AppCompatActivity {
 
     }
 
-    private void openViewUserPopUp() {
+    private void enableAccessForXDaysPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.enable_access_for_days_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        EditText etInput = view.findViewById(R.id.etInput);
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+
+        btnSubmit.setOnClickListener(v -> {
+            String numberInput = etInput.getText().toString();
+
+            if (Integer.parseInt(numberInput) > 365) {
+                etInput.setError("Please Enter Valid number of Days");
+                return;
+            }
+            String number = Integer.toHexString(Integer.parseInt(numberInput));
+            if (number.length() == 1) {
+                number = "000" + number;
+            } else if (number.length() == 2) {
+                number = "00" + number;
+            } else if (number.length() == 3) {
+                number = "0" + number;
+            }
+//            String number = Utils.stringToHex(numberInput);
+            byte[] daysByteArray = Utils.hexToByteArray(number);
+//            byte[] random8ByteArray = {0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+            byte[] random8ByteArray = RandomHexBytesUtil.generateRandomBytes(8);
+
+
+
+            byte[] startCommand = {0x02, (byte) 0x88, (byte) 0xFD, 0x02, (byte) 0xFF};
+            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+
+            // Calculate total length for the resulting byte array
+            int totalLength = daysByteArray.length + random8ByteArray.length + startCommand.length + endCommand.length;
+
+            // Create a new byte array to hold the combined data
+            byte[] combinedByteArray = new byte[totalLength];
+
+            // Copy data into the combinedByteArray
+            int index = 0;
+            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+            index += startCommand.length;
+            System.arraycopy(daysByteArray, 0, combinedByteArray, index, daysByteArray.length);
+            index += daysByteArray.length;
+            System.arraycopy(random8ByteArray, 0, combinedByteArray, index, random8ByteArray.length);
+            index += random8ByteArray.length;
+            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+            senMsgToBleDevice(combinedByteArray);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+
+    }
+
+    private void readSpecificUserPopUp() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.delete_user_master_key, null);
         builder.setView(view);
@@ -175,16 +529,24 @@ public class UserOperationActivity extends AppCompatActivity {
                 etInput.setError("Please Enter Valid number");
                 return;
             }
-            String number = Utils.stringToHex(numberInput);
-            byte[] passwordByteArray = Utils.hexToByteArray(number);
-            byte[] userNameByteArray = {0x04,0x05,0x06,0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+
+            String number = Integer.toHexString(Integer.parseInt(numberInput));
+            if (number.length() == 1) {
+                number = "000" + number;
+            } else if (number.length() == 2) {
+                number = "00" + number;
+            } else if (number.length() == 3) {
+                number = "0" + number;
+            }
+            byte[] numberByteArray = Utils.hexToByteArray(number);
+            byte[] random8ByteArray = {0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
 
 
             byte[] startCommand = {0x02, (byte) 0x84, (byte) 0xFD, 0x02, (byte) 0xFF};
             byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
 
             // Calculate total length for the resulting byte array
-            int totalLength = passwordByteArray.length + userNameByteArray.length + startCommand.length + endCommand.length;
+            int totalLength = numberByteArray.length + random8ByteArray.length + startCommand.length + endCommand.length;
 
             // Create a new byte array to hold the combined data
             byte[] combinedByteArray = new byte[totalLength];
@@ -193,10 +555,10 @@ public class UserOperationActivity extends AppCompatActivity {
             int index = 0;
             System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
             index += startCommand.length;
-            System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
-            index += passwordByteArray.length;
-            System.arraycopy(userNameByteArray, 0, combinedByteArray, index, userNameByteArray.length);
-            index += userNameByteArray.length;
+            System.arraycopy(numberByteArray, 0, combinedByteArray, index, numberByteArray.length);
+            index += numberByteArray.length;
+            System.arraycopy(random8ByteArray, 0, combinedByteArray, index, random8ByteArray.length);
+            index += random8ByteArray.length;
             System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
             senMsgToBleDevice(combinedByteArray);
             dialog.dismiss();
@@ -207,13 +569,13 @@ public class UserOperationActivity extends AppCompatActivity {
     }
 
     private void openDeleteAllUserPopUp() {
-        byte[] userNameByteArray = {0x02,0x03,0x04,0x05,0x06,0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+        byte[] random10ByteArray = {0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
 
-        byte[] startCommand = {0x02, (byte) 0x85, (byte) 0xFD, 0x00, (byte) 0xFF};
+        byte[] startCommand = {0x02, (byte) 0x86, (byte) 0xFD, 0x00, (byte) 0xFF};
         byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
 
         // Calculate total length for the resulting byte array
-        int totalLength = userNameByteArray.length + startCommand.length + endCommand.length;
+        int totalLength = random10ByteArray.length + startCommand.length + endCommand.length;
 
         // Create a new byte array to hold the combined data
         byte[] combinedByteArray = new byte[totalLength];
@@ -222,12 +584,13 @@ public class UserOperationActivity extends AppCompatActivity {
         int index = 0;
         System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
         index += startCommand.length;
-        System.arraycopy(userNameByteArray, 0, combinedByteArray, index, userNameByteArray.length);
-        index += userNameByteArray.length;
+        System.arraycopy(random10ByteArray, 0, combinedByteArray, index, random10ByteArray.length);
+        index += random10ByteArray.length;
         System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
         senMsgToBleDevice(combinedByteArray);
 
     }
+
     private void openDeleteUserPopUp() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.delete_user_master_key, null);
@@ -268,9 +631,9 @@ public class UserOperationActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
             String numberInput = etInput.getText().toString();
 
-            if(!checkbox.isChecked()){
+            if (!checkbox.isChecked()) {
                 checkbox.setError("Please select this");
-                showToast("Please Confirm by clicking on checkbox",Toast.LENGTH_SHORT);
+                showToast("Please Confirm by clicking on checkbox", Toast.LENGTH_SHORT);
                 return;
             }
             if (Integer.parseInt(numberInput) > 500) {
@@ -287,7 +650,7 @@ public class UserOperationActivity extends AppCompatActivity {
                 number = "0" + number;
             }
             byte[] passwordByteArray = Utils.hexToByteArray(number);
-            byte[] userNameByteArray = {0x04,0x05,0x06,0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
+            byte[] userNameByteArray = {0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, (byte) 0xFF};
 
             byte[] startCommand = {0x02, (byte) 0x83, (byte) 0xFD, 0x02, (byte) 0xFF};
             byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
@@ -386,8 +749,11 @@ public class UserOperationActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
             String numberInput = etInput.getText().toString();
             String userNameInput = etUserName.getText().toString();
-            if (Integer.parseInt(numberInput) > 500 || userNameInput.isEmpty() || userNameInput.length() < 8 || userNameInput.length() > 8) {
+            if (Integer.parseInt(numberInput) > 500) {
                 etInput.setError("Please Enter Valid number");
+                return;
+            }
+            if (userNameInput.isEmpty() || userNameInput.length() > 8) {
                 etUserName.setError("Please Enter Valid username");
                 return;
             }
@@ -494,6 +860,7 @@ public class UserOperationActivity extends AppCompatActivity {
                     break;
                 case BleAdapterService.GATT_DISCONNECT:
                     showToast("DISCONNECTED", Toast.LENGTH_SHORT);
+                    showDisconnectedPopUp();
                     break;
                 case BleAdapterService.GATT_SERVICES_DISCOVERED:
                     // validate services and if ok....
@@ -535,6 +902,17 @@ public class UserOperationActivity extends AppCompatActivity {
         }
     };
 
+    private void showDisconnectedPopUp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.device_disconnected_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        view.findViewById(R.id.btnSubmit).setOnClickListener(view1 -> finish());
+        dialog.show();
+    }
+
 
     private void checkResponse(String[] response, byte[] values) {
         if (response.length == 18) {
@@ -547,7 +925,7 @@ public class UserOperationActivity extends AppCompatActivity {
                 case ReplyCode.PASSWORD_WRONG:
                     showToast("Password wrong", Toast.LENGTH_SHORT);
                     break;
-                case ReplyCode.SYSTEM_BUSY_PASSWORD:
+                case ReplyCode.SYSTEM_BUSY:
                     showToast("System Busy", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.OPERATION_NOT_ALLOWED:
@@ -563,7 +941,7 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast("USER_ALREADY_EXIST", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_REGISTRATION_IN_PROCESS:
-                    showToast("USER_REGISTRATION_IN_PROCESS", Toast.LENGTH_SHORT);
+//                    showToast("USER_REGISTRATION_IN_PROCESS", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.REMOVE_FINGER:
                     showToast("REMOVE_FINGER", Toast.LENGTH_SHORT);
@@ -596,18 +974,22 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast("USER_NOT_EXIST", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_DETAILS_WITH_USERID:
+                    byte[] singleId = {values[5], values[6]};
+                    byte[] singleUser = {values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14]};
+                    userDetailsList.add(new UserData(singleUser, singleId));
+                    showAllUser();
                     showToast("USER_DETAILS_WITH_USERID", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.INVALID_USERID:
                     showToast("INVALID_USERID", Toast.LENGTH_SHORT);
                     break;
-                 case ReplyCode.USER_DETAILS_SHARING_IN_PROGRESS:
-                     Log.d("TAG", "checkResponse: "+ values);
-                     byte[] id = {values[5], values[6]};
-                     byte[] name = {values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14]};
-                     userDetailsList.add(new UserData(name, id));
+                case ReplyCode.USER_DETAILS_SHARING_IN_PROGRESS:
+                    Log.d("TAG", "checkResponse: " + values);
+                    byte[] id = {values[5], values[6]};
+                    byte[] name = {values[7], values[8], values[9], values[10], values[11], values[12], values[13], values[14]};
+                    userDetailsList.add(new UserData(name, id));
 
-                     showToast("USER_DETAILS_SHARING_IN_PROGRESS", Toast.LENGTH_SHORT);
+                    showToast("USER_DETAILS_SHARING_IN_PROGRESS", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_DETAILS_SHARING_COMPLETE:
                     showAllUser();
@@ -619,6 +1001,71 @@ public class UserOperationActivity extends AppCompatActivity {
                 case ReplyCode.DELETE_ALL_USER_DECLINE:
                     showToast("DELETE_ALL_USER_DECLINE", Toast.LENGTH_SHORT);
                     break;
+
+                case ReplyCode.ACCESS_GRANTED_FOR_X_DAYS:
+                    showToast("ACCESS_GRANTED_FOR_X_DAYS", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.ACCESS_DECLINE_FOR_X_DAYS:
+                    showToast("ACCESS_DECLINE_FOR_X_DAYS", Toast.LENGTH_SHORT);
+                    break;
+                case ReplyCode.DEVICE_TYPE_INFORMATION:
+                    showDeviceInfo(values);
+                    showToast("DEVICE_TYPE_INFORMATION", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.DEVICE_TYPE_INFORMATION_DECLINE:
+                    showToast("DEVICE_TYPE_INFORMATION_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.FLOOR_ACCESS_INFORMATION:
+                    showToast("FLOOR_ACCESS_INFORMATION", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.FLOOR_ACCESS_INFORMATION_DECLINE:
+                    showToast("FLOOR_ACCESS_INFORMATION_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.DEVICE_TYPE_UPDATE_SUCCESSFULLY:
+                    showToast("DEVICE_TYPE_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.DEVICE_TYPE_UPDATE_DECLINE:
+                    showToast("DEVICE_TYPE_UPDATE_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.MASTER_PASSWORD_UPDATE_SUCCESSFULLY:
+                    showToast("MASTER_PASSWORD_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.MASTER_PASSWORD_UPDATE_DECLINE:
+                    showToast("MASTER_PASSWORD_UPDATE_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.BT_PASSWORD_UPDATE_SUCCESSFULLY:
+                    showToast("BT_PASSWORD_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.BT_PASSWORD_UPDATE_DECLINE:
+                    showToast("BT_PASSWORD_UPDATE_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.FS_PASSWORD_UPDATE_SUCCESSFULLY:
+                    showToast("FS_PASSWORD_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.FS_PASSWORD_UPDATE_DECLINE:
+                    showToast("FS_PASSWORD_UPDATE_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
+                case ReplyCode.DEVICE_NAME_UPDATE_SUCCESSFULLY:
+                    showToast("DEVICE_NAME_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
+                    break;
+
+                 case ReplyCode.DEVICE_NAME_UPDATE_DECLINE:
+                    showToast("DEVICE_NAME_UPDATE_DECLINE", Toast.LENGTH_SHORT);
+                    break;
+
                 default:
                     showToast("Some Error", Toast.LENGTH_SHORT);
                     break;
@@ -626,15 +1073,53 @@ public class UserOperationActivity extends AppCompatActivity {
         }
     }
 
+    private void showDeviceInfo(byte[] values) {
+        if (values == null || values.length < 15) {
+            // Handle error: values array is not large enough
+            return;
+        }
+
+        // Extract the device info bytes (indices 5 to 14 inclusive)
+        byte[] deviceInfo = Arrays.copyOfRange(values, 5, 15);
+
+        // Create and display the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.device_info_pop_up, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        // Set the device info text
+        TextView tvDevice = view.findViewById(R.id.tvDevice);
+        tvDevice.setText(Utils.convertHexStringValue(deviceInfo));
+
+        dialog.show();
+    }
+
+
     private void showAllUser() {
-        UserListAdapter adapter =  new UserListAdapter(this, userDetailsList);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.all_user_master_key, null);
         builder.setView(view);
         final AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         ListView lvUsers = view.findViewById(R.id.lvUsers);
-        lvUsers.setAdapter(adapter);
+       TextView  tvNoUser = view.findViewById(R.id.tvNoUser);
+        if(userDetailsList.isEmpty()){
+            tvNoUser.setVisibility(View.VISIBLE);
+        }
+        else {
+            UserListAdapter adapter = new UserListAdapter(this, userDetailsList);
+            lvUsers.setAdapter(adapter);
+        }
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                userDetailsList.clear();
+            }
+        });
         dialog.show();
     }
 

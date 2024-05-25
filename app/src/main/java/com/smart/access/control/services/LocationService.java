@@ -53,7 +53,6 @@ public class LocationService extends Service {
     public void onCreate() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) createNotificationChanel();
         else startForeground(1, new Notification());
-//        sm = new SessionManager(this);
         requestLocationUpdates();
     }
 

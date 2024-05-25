@@ -15,6 +15,7 @@ import com.smart.access.control.R;
 import com.smart.access.control.activities.UserData;
 import com.smart.access.control.services.Utils;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -60,23 +61,15 @@ public class UserListAdapter extends BaseAdapter {
         }
         if (usersList != null) {
             UserData user = usersList.get(i);
-            viewHolder.text.setText(convertHexString(user.getUserId()));
-            viewHolder.bdaddr.setText(convertHexStringValue(user.getUserName()));
+            byte[] receivedArray = user.getUserId();
+            int number = Utils.getInt(receivedArray, 0, receivedArray.length);
+            viewHolder.text.setText(Integer.toString(number));
+            viewHolder.bdaddr.setText(Utils.convertHexStringValue(user.getUserName()));
         }
         return view;
     }
 
-    private String convertHexStringValue(byte[] byteStrings) {
-        StringBuilder builder = new StringBuilder();
 
-        for (byte byteString : byteStrings) {
-            char character = (char) (byteString & 0xFF); // Convert signed byte to unsigned int and then to character
-            builder.append(character);
-        }
-
-
-        return builder.toString();
-    }
 
 
     private String convertHexString(byte[] hexStrings) {
