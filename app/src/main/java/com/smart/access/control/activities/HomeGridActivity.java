@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -85,7 +84,7 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
     }
 
     private void initView() {
-        bleDeviceListAdapter = new BleListAdapter(this);
+//        bleDeviceListAdapter = new BleListAdapter(this, unpairedBluetoothDeviceList);
         listView = findViewById(R.id.deviceList);
         listView.setAdapter(bleDeviceListAdapter);
 
@@ -133,7 +132,7 @@ public class HomeGridActivity extends AppCompatActivity implements ScanResultsCo
         itemList.add("Dummy");
 
         recyclerView = findViewById(R.id.recyclerView);
-        gridAdapter = new GridAdapter(this, itemList);
+//        gridAdapter = new GridAdapter(this, itemList);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(gridAdapter);
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/theme_color_1"
+    android:background="@color/white"
     tools:context=".activities.RegisterActivity">
 
     <ImageView
@@ -26,7 +26,7 @@
         android:layout_marginTop="@dimen/dp18"
         android:layout_marginRight="@dimen/dp18"
         android:onClick="onBack"
-        android:src="@drawable/back_arrow" />
+        android:src="@drawable/ic_backarrow" />
 
 
     <LinearLayout
@@ -46,7 +46,7 @@
             android:fontFamily="@font/bold"
             android:gravity="center_vertical|center"
             android:text="Register"
-            android:textColor="@color/white"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp27" />
 
         <TextView
@@ -58,7 +58,7 @@
             android:fontFamily="@font/bold"
             android:gravity="center_vertical|center"
             android:text="Enter Your Details"
-            android:textColor="@color/login_sub"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp16" />
 
         <LinearLayout
@@ -74,12 +74,13 @@
                 android:layout_margin="@dimen/dp4"
                 android:layout_weight="1"
                 android:background="@drawable/edittext_white_background"
+                android:fontFamily="@font/medium"
                 android:hint="First Name"
                 android:inputType="text"
                 android:maxLength="10"
                 android:paddingLeft="@dimen/dp15"
-                android:textColor="@color/theme_color_1"
-                android:textColorHint="#393F47"
+                android:textColor="@color/grid_text_color"
+                android:textColorHint="@color/grid_text_color"
                 android:textSize="@dimen/sp14" />
 
             <EditText
@@ -89,16 +90,18 @@
                 android:layout_margin="@dimen/dp4"
                 android:layout_weight="1"
                 android:background="@drawable/edittext_white_background"
+                android:fontFamily="@font/medium"
                 android:hint="Last Name"
                 android:inputType="text"
                 android:maxLength="10"
                 android:paddingLeft="@dimen/dp15"
-                android:textColor="@color/theme_color_1"
-                android:textColorHint="#393F47"
+                android:textColor="@color/grid_text_color"
+                android:textColorHint="@color/grid_text_color"
                 android:textSize="@dimen/sp14" />
         </LinearLayout>
 
         <EditText
+            android:fontFamily="@font/medium"
             android:id="@+id/etUserName"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp45"
@@ -107,11 +110,12 @@
             android:hint="Username"
             android:inputType="textPersonName"
             android:paddingLeft="@dimen/dp15"
-            android:textColor="@color/theme_color_1"
-            android:textColorHint="#393F47"
+            android:textColor="@color/grid_text_color"
+            android:textColorHint="@color/grid_text_color"
             android:textSize="@dimen/sp14" />
 
         <EditText
+            android:fontFamily="@font/medium"
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp45"
@@ -120,12 +124,13 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:paddingLeft="@dimen/dp15"
-            android:textColor="@color/theme_color_1"
-            android:textColorHint="#393F47"
+            android:textColor="@color/grid_text_color"
+            android:textColorHint="@color/grid_text_color"
             android:textSize="@dimen/sp14" />
 
 
         <EditText
+            android:fontFamily="@font/medium"
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp45"
@@ -134,11 +139,12 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:paddingLeft="@dimen/dp15"
-            android:textColor="@color/theme_color_1"
-            android:textColorHint="#393F47"
+            android:textColor="@color/grid_text_color"
+            android:textColorHint="@color/grid_text_color"
             android:textSize="@dimen/sp14" />
 
         <EditText
+            android:fontFamily="@font/medium"
             android:id="@+id/etCPassword"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp45"
@@ -147,8 +153,8 @@
             android:hint="Confirm Password"
             android:inputType="textPassword"
             android:paddingLeft="@dimen/dp15"
-            android:textColor="@color/theme_color_1"
-            android:textColorHint="#393F47"
+            android:textColor="@color/grid_text_color"
+            android:textColorHint="@color/grid_text_color"
             android:textSize="@dimen/sp14" />
 
         <Button
@@ -156,13 +162,13 @@
             android:layout_height="@dimen/dp45"
             android:layout_marginTop="@dimen/dp9"
             android:layout_marginBottom="@dimen/dp4"
-            android:background="@drawable/edittext_white_background"
+            android:background="@drawable/button_background"
             android:fontFamily="@font/semi_bold"
             android:gravity="center|center_vertical"
             android:onClick="onRegisterClick"
             android:text="@string/register"
             android:textAllCaps="false"
-            android:textColor="#25272B" />
+            android:textColor="@color/white" />
 
     </LinearLayout>
 
@@ -177,6 +183,10 @@
         android:gravity="center|center_vertical"
         android:orientation="vertical">
 
+        <ImageView
+            android:src="@drawable/company_logo"
+            android:layout_width="@dimen/dp100"
+            android:layout_height="@dimen/dp100"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -188,7 +198,7 @@
             android:gravity="center|center_vertical"
             android:onClick="onLoginClick"
             android:text="@string/regi_an_account"
-            android:textColor="#B1B2B3"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp15" />
     </LinearLayout>
 

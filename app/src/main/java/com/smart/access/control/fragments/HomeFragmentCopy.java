@@ -97,11 +97,10 @@ import java.util.List;
         }
 
         private void init() {
-            btnUnit = view.findViewById(R.id.btnUnit);
             btnUnit.setOnClickListener(view -> openGridActivity());
     //        btnUnit.setOnClickListener(view -> openMasterKeyPopUp());
 
-            bleDeviceListAdapter = new BleListAdapter(context);
+//            bleDeviceListAdapter = new BleListAdapter(context, unpairedBluetoothDeviceList);
             listView = view.findViewById(R.id.deviceList);
             listView.setAdapter(bleDeviceListAdapter);
 

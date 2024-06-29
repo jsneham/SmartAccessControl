@@ -11,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.smart.access.control.R;
 
@@ -22,9 +21,10 @@ public class BleListAdapter extends BaseAdapter {
     Context context;
     private ArrayList<BluetoothDevice> ble_devices;
 
-    public BleListAdapter(Context context) {
+    public BleListAdapter(Context context, ArrayList<BluetoothDevice> unpairedBluetoothDeviceList) {
         this.context = context;
-        ble_devices = new ArrayList<BluetoothDevice>();
+        ble_devices = unpairedBluetoothDeviceList;
+//        ble_devices = new ArrayList<BluetoothDevice>();
 
     }
 

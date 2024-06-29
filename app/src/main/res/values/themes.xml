@@ -2,22 +2,25 @@
     <!-- Base application theme. -->
     <style name="Theme.SmartAccessControl" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/theme_color_2</item>
+        <item name="colorPrimaryVariant">@color/theme_color_2</item>
+        <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondary">@color/teal_700</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/white</item>
+        <!-- Ensure status bar icons and text are black. -->
+        <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
     </style>
 
     <style name="toolbar_theme_main" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="fontFamily">@font/semi_bold</item>
-        <item name="titleTextColor">@color/white</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="titleTextColor">@color/theme_color_1</item>
+        <item name="android:textColor">@color/theme_color_1</item>
     </style>
 
     <style name="setting_header_text" >
@@ -29,9 +32,9 @@
 
 
     <style name="setting_name_medium_header_text" >
-        <item name="android:fontFamily">@font/bold</item>
-        <item name="android:textSize">@dimen/sp16</item>
-        <item name="android:textColor">@color/primary_500</item>
+        <item name="android:fontFamily">@font/regular</item>
+        <item name="android:textSize">@dimen/sp12</item>
+        <item name="android:textColor">@color/grid_text_color</item>
         <item name="android:gravity">left</item>
     </style>
 
@@ -44,8 +47,8 @@
 
     <style name="toolbar_theme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="fontFamily">@font/semi_bold</item>
-        <item name="titleTextColor">@color/white</item>
-        <item name="android:textColor">@color/white</item>
-
+        <item name="titleTextColor">@color/theme_color_1</item>
+        <item name="android:textColor">@color/theme_color_1</item>
+        <item name="navigationIcon">@drawable/ic_backarrow</item>
     </style>
 </resources>

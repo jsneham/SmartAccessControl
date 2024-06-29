@@ -66,53 +66,53 @@ public class SettingsFragment extends Fragment implements CustomAdapter.OnItemCl
 
         setRecyclerView();
 
-        setPairedDevice();
+//        setPairedDevice();
         return view;
     }
 
-    private void setPairedDevice() {
-        bleDeviceListAdapter = new BleListAdapter(context);
-        listView = view.findViewById(R.id.deviceList);
-        listView.setAdapter(bleDeviceListAdapter);
+//    private void setPairedDevice() {
+//        bleDeviceListAdapter = new BleListAdapter(context);
+//        listView = view.findViewById(R.id.deviceList);
+//        listView.setAdapter(bleDeviceListAdapter);
+//
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//
+//        if (bluetoothAdapter == null) {
+//            // Device does not support Bluetooth
+//            showToast("Bluetooth is not supported on this device", Toast.LENGTH_SHORT);
+//        } else {
+//            // Bluetooth is supported
+//            if (!bluetoothAdapter.isEnabled()) {
+//                // Bluetooth is not enabled, prompt user to enable it
+//                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+//            } else {
+//                // Bluetooth is enabled, show paired and unpaired devices
+//                showPairedDevices();
+//            }
+//        }
+//    }
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        if (bluetoothAdapter == null) {
-            // Device does not support Bluetooth
-            showToast("Bluetooth is not supported on this device", Toast.LENGTH_SHORT);
-        } else {
-            // Bluetooth is supported
-            if (!bluetoothAdapter.isEnabled()) {
-                // Bluetooth is not enabled, prompt user to enable it
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            } else {
-                // Bluetooth is enabled, show paired and unpaired devices
-                showPairedDevices();
-            }
-        }
-    }
-
-    private void showPairedDevices() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                bleDeviceListAdapter.addDevice(device);
-            }
-        } else {
-//            bleDeviceListAdapter.add("No paired devices found");
-        }
-    }
+//    private void showPairedDevices() {
+//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+//        if (pairedDevices.size() > 0) {
+//            for (BluetoothDevice device : pairedDevices) {
+//                bleDeviceListAdapter.addDevice(device);
+//            }
+//        } else {
+////            bleDeviceListAdapter.add("No paired devices found");
+//        }
+//    }
 
 
     private void setRecyclerView() {
@@ -145,9 +145,14 @@ public class SettingsFragment extends Fragment implements CustomAdapter.OnItemCl
     public void onItemClick(SettingsMenu item) {
         String tag;
 
-        Intent in = new Intent(context, SettingActivity.class);
-        in.putExtra("tag", item.getTitle());
-        context.startActivity(in);
+        if(item.getTitle().equals("LOGOUT")){
+            sessionManager.logoutUser();
+        }
+        else {
+            Intent in = new Intent(context, SettingActivity.class);
+            in.putExtra("tag", item.getTitle());
+            context.startActivity(in);
+        }
 
 
     }

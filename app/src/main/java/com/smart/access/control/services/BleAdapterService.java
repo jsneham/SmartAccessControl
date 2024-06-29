@@ -246,6 +246,7 @@ public class BleAdapterService extends Service {
             return;
         }
 
+
     }
 
     // connect to the device
@@ -422,6 +423,8 @@ public class BleAdapterService extends Service {
         msg.setData(data);
         msg.sendToTarget();
     }
+
+
 
 
 

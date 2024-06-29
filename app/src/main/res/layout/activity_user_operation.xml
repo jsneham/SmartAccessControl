@@ -6,7 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".activities.HomeGridActivity">
 
-    <include layout="@layout/main_toolbar"/>
+    <androidx.appcompat.widget.Toolbar
+        android:layout_alignParentTop="true"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:theme="@style/toolbar_theme"
+        app:layout_scrollFlags="scroll|enterAlways"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 
     <androidx.recyclerview.widget.RecyclerView

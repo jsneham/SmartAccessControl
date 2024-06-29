@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp18"
+        android:fontFamily="@font/bolditalic"
+        android:gravity="center"
+        android:text="BLE Devices"/>
+
+
+    <ListView
+        android:id="@+id/unpairedDeviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp18"
+        android:layout_marginRight="@dimen/dp18" />
+</LinearLayout>

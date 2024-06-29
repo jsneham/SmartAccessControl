@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -24,26 +25,36 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.smart.access.control.R;
 import com.smart.access.control.activities.HomeGridActivity;
 import com.smart.access.control.activities.UserOperationActivity;
 import com.smart.access.control.adapters.BleListAdapter;
 import com.smart.access.control.adapters.GridAdapter;
+import com.smart.access.control.adapters.SliderAdapter;
 import com.smart.access.control.constants.ReplyCode;
+import com.smart.access.control.modals.GridItem;
 import com.smart.access.control.services.BleAdapterService;
 import com.smart.access.control.services.BleScanner;
 import com.smart.access.control.services.LocationService;
@@ -58,6 +69,7 @@ import java.util.List;
 import java.util.Set;
 
 public class HomeFragment extends Fragment implements ScanResultsConsumer {
+
 
     private View view;
     private Context context;
@@ -78,6 +90,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     private boolean ble_scanning = false;
     private BleListAdapter bleDeviceListAdapter;
     private BleListAdapter unpairedBluetoothAdapter;
+    private ArrayList<BluetoothDevice> unpairedBluetoothDeviceList= new ArrayList<>();
     private BleAdapterService bluetoothLeAdapter;
 
     private String deviceName = null;
@@ -97,9 +110,17 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     GridAdapter gridAdapter;
     //    private static final long DELAY_TIME_MS = 10 * 60 * 1000; //10 Minute
     private static final long DELAY_TIME_MS = 10 * 1000; //10 Second
-    private boolean isBLEDeviceConnected =false;
+    private boolean isBLEDeviceConnected = false;
     private ProgressDialog progressDialog;
+    private ArrayList<String> deviceList = new ArrayList<>();
+    private LinearLayout indicatorLayout ;
+    private ViewPager viewPager;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,18 +131,33 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         init();
         checkPermissions();
         setRecyclerView(view);
+        onSliderCall();
+
         return view;
     }
 
-    private void setRecyclerView(View view) {
+    @NonNull
+    private static ArrayList<String> getDeviceListArrayList() {
+        ArrayList<String> itemList = new ArrayList<String>();
 
-        ArrayList<String> itemList = new ArrayList<>();
-        itemList.add("User Management");
-        itemList.add("Enable Temp Access  (1min)");
-        itemList.add("Dummy");
-        itemList.add("Dummy");
-        itemList.add("Dummy");
-        itemList.add("Dummy");
+        itemList.add("FC:B4:67:E0:B8:FA");
+        itemList.add("EO:65:B8:14:A0:4E");
+        itemList.add("30:C9:22:D8:5E:7A");
+        itemList.add("30:C9:22:16:D7:6E");
+        itemList.add("A4:CF:12:43:5A:62");
+        return itemList;
+    }
+
+    private void setRecyclerView(View view) {
+        deviceList = getDeviceListArrayList();
+
+        ArrayList<GridItem> itemList = new ArrayList<>();
+        itemList.add(new GridItem("User Management", R.drawable.user_management));
+        itemList.add(new GridItem("Enable Temp Access  (1min)", R.drawable.temp_access));
+//        itemList.add(new GridItem("Dummy", 3));
+//        itemList.add(new GridItem("Dummy", 4));
+//        itemList.add(new GridItem("Dummy", 2));
+//        itemList.add(new GridItem("Dummy", 5));
 
         recyclerView = view.findViewById(R.id.recyclerView);
         gridAdapter = new GridAdapter(context, itemList);
@@ -145,15 +181,17 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
                     }
                 } else {
-                    if(deviceName==null){
+                    if (deviceName == null) {
                         showToast("Device is not connected.", Toast.LENGTH_SHORT);
-                    }
-                   else  showToast("Device is not connected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
+                    } else
+                        showToast("Device is not connected,Please connect to " + deviceName, Toast.LENGTH_SHORT);
                 }
 
 
             }
         });
+
+
     }
 
     private void sendEnableTempAccess() {
@@ -179,39 +217,12 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
     private void init() {
 
-        unpairedBluetoothAdapter = new BleListAdapter(context);
+//        unpairedBluetoothAdapter = new BleListAdapter(context);
+        unpairedBluetoothDeviceList =new ArrayList<>();
+
 
 //        listView = view.findViewById(R.id.deviceList);
 //        listView.setAdapter(bleDeviceListAdapter);
-
-        unpairedDeviceList = view.findViewById(R.id.unpairedDeviceList);
-        unpairedDeviceList.setAdapter(unpairedBluetoothAdapter);
-
-        unpairedDeviceList.setOnItemClickListener((parent, view, position, id) -> {
-
-            if (ble_scanning) {
-                bleScanner.stopScanning();
-            }
-
-            device = unpairedBluetoothAdapter.getDevice(position);
-            if (toast != null) {
-                toast.cancel();
-            }
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            deviceName = device.getName();
-            deviceAddress = device.getAddress();
-            onConnect();
-
-        });
 
 //        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 //
@@ -232,7 +243,74 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 //        }
     }
 
+    private void onSliderCall() {
+        ArrayList<Integer> sliders = new ArrayList<Integer>();
 
+        sliders.add(R.drawable.slider_one);
+        sliders.add(R.drawable.slider_two);
+        viewPager= view.findViewById(R.id.viewPager);
+        indicatorLayout = view.findViewById(R.id.indicatorLayout);
+
+
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        SliderAdapter adapter = new SliderAdapter(context, sliders);
+        if (viewPager != null) {
+            viewPager.setAdapter(adapter);
+            setupIndicator(sliders.size());
+            int pageMargin = getResources().getDimensionPixelOffset(R.dimen.dp10);
+            viewPager.setPageMargin(pageMargin);
+
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+                @Override
+                public void onPageSelected(int position) {
+                    updateIndicator(position);
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {}
+            });
+        }
+    }
+
+    private void updateIndicator(int position) {
+        int childCount = indicatorLayout.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            ImageView imageView = (ImageView) indicatorLayout.getChildAt(i);
+            if (i == position) {
+                imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.indicator_active));
+            } else {
+                imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.indicator_inactive));
+            }
+        }
+    }
+
+
+    private void setupIndicator(int count) {
+        ImageView[] indicators = new ImageView[count];
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 0, 8, 0);
+
+        for (int i = 0; i < indicators.length; i++) {
+            indicators[i] = new ImageView(context);
+            indicators[i].setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.indicator_inactive));
+            indicators[i].setLayoutParams(layoutParams);
+            indicatorLayout.addView(indicators[i]);
+        }
+
+        // Make sure to only set the active indicator if count is greater than 0
+        if (count > 0) {
+            indicators[0].setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.indicator_active));
+        }
+    }
 
 
     private void checkPermissions() {
@@ -308,21 +386,23 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             if (bluetoothLeAdapter.connect(deviceAddress)) {
                 showToast("onConnect: connect", Toast.LENGTH_SHORT);
             } else {
-                isBLEDeviceConnected=false;
+                isBLEDeviceConnected = false;
+                getActivity().invalidateOptionsMenu();
                 showToast("onConnect: failed to connect", Toast.LENGTH_SHORT);
             }
         } else {
-            isBLEDeviceConnected=false;
+            isBLEDeviceConnected = false;
+            getActivity().invalidateOptionsMenu();
             showToast("onConnect: bluetooth_le_adapter=null", Toast.LENGTH_SHORT);
         }
 
 //        startTimerForPopup();
     }
 
-    private void startTimerForPopup() {
+    private void startTimerForPopup(String Messages) {
         // Create a Handler to run the code after 10 seconds
         progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("connecting to " +deviceName +" ...");
+        progressDialog.setMessage(Messages + deviceName + " ...");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setCancelable(false); // Prevent dismissing by tapping outside
         progressDialog.show();
@@ -331,11 +411,10 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             @Override
             public void run() {
                 progressDialog.dismiss();
-                if(isBLEDeviceConnected){
-                    showToast("Connected to " +deviceName , Toast.LENGTH_SHORT);
-                }
-                else {
-                    showToast("Device is not connected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
+                if (isBLEDeviceConnected) {
+                    showToast("Connected to " + deviceName, Toast.LENGTH_SHORT);
+                } else {
+                    showToast("Device is not connected,Please connect to " + deviceName, Toast.LENGTH_SHORT);
                 }
 
             }
@@ -492,7 +571,8 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                     return;
                 }
                 if (device != null && device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    unpairedBluetoothAdapter.addDevice(device);
+//                    unpairedBluetoothAdapter.addDevice(device);
+                    unpairedBluetoothDeviceList.add(device);
                 }
             }
         }
@@ -508,15 +588,19 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                     showToast(bundle.getString(BleAdapterService.PARCEL_TEXT), Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_CONNECTED:
-                    startTimerForPopup();
+                    startTimerForPopup("connecting to ");
                     showToast("Device is Connected", Toast.LENGTH_SHORT);
                     bluetoothLeAdapter.discoverServices();
                     break;
                 case BleAdapterService.GATT_DISCONNECT:
-                    if(progressDialog!= null && progressDialog.isShowing()){
+                    if (progressDialog != null && progressDialog.isShowing()) {
                         progressDialog.dismiss();
+
                     }
-                    showToast("Device is disconnected,Please connect to "+ deviceName, Toast.LENGTH_SHORT);
+                    if (bluetoothLeAdapter.isConnected()) {
+                        bluetoothLeAdapter.disconnect();
+                    }
+                    showToast("Device is disconnected,Please connect to " + deviceName, Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_SERVICES_DISCOVERED:
                     // validate services and if ok....
@@ -547,13 +631,16 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                 case BleAdapterService.NOTIFICATION_OR_INDICATION_RECEIVED:
                     bundle = msg.getData();
                     Log.d("TAG", "NOTIFICATION_OR_INDICATION_RECEIVED: " + (byte[]) bundle.get("VALUE"));
-                    if(bundle.get("VALUE").equals("AuthenticationDone")){
-                        isBLEDeviceConnected=true;
-                    }
-                    else {
-                        String[] passwordReply = Utils.convertByteHexArray((byte[]) bundle.get("VALUE"));
+                    byte[] response = (byte[]) bundle.get("VALUE");
+                    String authentication = new String(response);
+                    if (authentication.equals("AuthenticationDone")) {
+                        isBLEDeviceConnected = true;
+                        getActivity().invalidateOptionsMenu();
+                    } else {
+                        String[] passwordReply = Utils.convertByteHexArray(response);
                         checkResponse(passwordReply);
                     }
+
 
                     Log.d("TAG", "Service=" + bundle.getString(BleAdapterService.PARCEL_SERVICE_UUID).toUpperCase() +
                             " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase());
@@ -606,8 +693,9 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     private void startScanning() {
         if (permissionsGranted) {
             getActivity().runOnUiThread(() -> {
-                unpairedBluetoothAdapter.clear();
-                unpairedBluetoothAdapter.notifyDataSetChanged();
+//                unpairedBluetoothAdapter.clear();
+//                unpairedBluetoothAdapter.notifyDataSetChanged();
+                if(unpairedBluetoothDeviceList.size()>0)unpairedBluetoothDeviceList.clear();
             });
             showToast(Urls.SCANNING, Toast.LENGTH_SHORT);
             bleScanner.startScanning(this, scanTimeout);
@@ -620,9 +708,26 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     public void candidateBleDevice(BluetoothDevice device, byte[] scan_record, int rssi) {
         getActivity().runOnUiThread(() -> {
             if (device != null) {
-                unpairedBluetoothAdapter.addDevice(device);
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                boolean isPresent = deviceList.contains(device.getAddress());
+                if(device.getName().startsWith("*") && device.getName().endsWith("*") && isPresent){
+//                    unpairedBluetoothAdapter.addDevice(device);
+                    if (!unpairedBluetoothDeviceList.contains(device)) {
+                        unpairedBluetoothDeviceList.add(device);
+                    }
+
+                }
             }
-            unpairedBluetoothAdapter.notifyDataSetChanged();
+//            unpairedBluetoothAdapter.notifyDataSetChanged();
             deviceCount++;
         });
     }
@@ -828,6 +933,11 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         if (bleScanner != null && bleScanner.isScanning()) {
             bleScanner.stopScanning();
         }
+
+
+//        getActivity().getApplicationContext().unregisterReceiver(mPairingRequestReceiver);
+//        getActivity().getApplicationContext().unregisterReceiver(mPairingResultReceiver);
+
     }
 
 
@@ -839,6 +949,134 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             }
         }
         return false;
+    }
+
+
+    private BroadcastReceiver mPairingRequestReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                int pin = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                device.createBond();
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                    startTimerForPopup("Is Pairing to ");
+                }
+
+            }
+        }
+    };
+
+
+    private BroadcastReceiver mPairingResultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                if (bondState == BluetoothDevice.BOND_BONDED) {
+                    // Device successfully bonded
+                    showToast("Device successfully bonded", Toast.LENGTH_SHORT);
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                    }
+                } else if (bondState == BluetoothDevice.BOND_NONE) {
+                    // Bonding failed or removed
+                    showToast("Bonding failed or removed", Toast.LENGTH_SHORT);
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                    }
+                }
+            }
+        }
+    };
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_menu, menu);
+    }
+
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem settingsItem = menu.findItem(R.id.action_on_off);
+
+        if (isBLEDeviceConnected) {
+            settingsItem.setIcon(R.drawable.on); // Update the icon
+            settingsItem.setTitle("Connected"); // Update the text
+        } else {
+            settingsItem.setIcon(R.drawable.off);
+            settingsItem.setTitle("Disconnected");
+        }
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_on_off:
+//                Toast.makeText(getActivity(), "connection clicked", Toast.LENGTH_SHORT).show();
+                showDeviceList();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void showDeviceList() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            View dialogView = LayoutInflater.from(context).inflate(R.layout.list_popup, null);
+            builder.setView(dialogView);
+            final AlertDialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(true);
+            unpairedBluetoothAdapter = new BleListAdapter(context, unpairedBluetoothDeviceList);
+            unpairedDeviceList = dialogView.findViewById(R.id.unpairedDeviceList);
+            unpairedDeviceList.setAdapter(unpairedBluetoothAdapter);
+
+            unpairedDeviceList.setOnItemClickListener((parent, view, position, id) -> {
+
+                if (ble_scanning) {
+                    bleScanner.stopScanning();
+                }
+
+                device = unpairedBluetoothAdapter.getDevice(position);
+                if (toast != null) {
+                    toast.cancel();
+                }
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                deviceName = device.getName();
+                deviceAddress = device.getAddress();
+                onConnect();
+                dialog.dismiss();
+
+            });
+            dialog.show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

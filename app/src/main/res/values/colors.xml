@@ -4,15 +4,15 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#040506</color>
+    <color name="teal_700">#efeff1</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="theme_color_1">#040506</color>
-    <color name="theme_color_2">#FCCD84</color>
+    <color name="theme_color_1">#343336</color>
+    <color name="theme_color_2">#446be4</color>
     <color name="setting_screen_title">#3E3E3E</color>
     <color name="setting_screen_logout_background">#3E3E3E</color>
     <color name="setting_screen_logout">#F6F7F8</color>
-    <color name="background">#00A9A9A9</color>
+    <color name="background">#efeff1</color>
     <color name="tab_default_color">#3E3E3E</color>
     <color name="bluegray_50">#f1f1f1</color>
     <color name="blue_500">#2279B3</color>
@@ -64,8 +64,11 @@
     <color name="pdf_company">#292D32</color>
     <color name="gray_300">#B3B3B3</color>
     <color name="primary_500">#25272B</color>
-    <color name="screen_background_color">#F2F2F2</color>
+    <color name="screen_background_color">#efeff1</color>
     <color name="secondary_500">#FDDCA8</color>
     <color name="back_transparent_color">#DFDFDF</color>
     <color name="gray_400">#999999</color>
+    <color name="unselected_color">#98949c</color>
+    <color name="grid_text_color">#433f48</color>
+    <color name="grid_icon_color">#EDEDEF</color>
 </resources>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/theme_color_1"
+    android:background="@color/white"
     tools:context=".activities.LoginActivity">
 
     <ImageView
@@ -32,7 +32,7 @@
             android:fontFamily="@font/semi_bold"
             android:gravity="center_vertical|center"
             android:text="Welcome"
-            android:textColor="@color/white"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp27"
             />
 
@@ -45,7 +45,7 @@
             android:fontFamily="@font/semi_bold"
             android:gravity="center_vertical|center"
             android:text="Login to your account"
-            android:textColor="@color/login_sub"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp16"
             />
     </LinearLayout>
@@ -61,37 +61,37 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:fontFamily="@font/bold"
+            android:fontFamily="@font/medium"
             android:paddingLeft="@dimen/dp15"
             android:paddingRight="@dimen/dp15"
             android:layout_marginLeft="@dimen/dp15"
             android:layout_marginRight="@dimen/dp15"
             android:layout_marginTop="@dimen/dp9"
-            android:textColor="#474B52"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp12"
-            android:textColorHint="#474B52"
+            android:textColorHint="@color/grid_text_color"
             android:hint="Username OR Email Id"
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp45"
+            android:layout_height="@dimen/dp60"
             android:background="@drawable/edittext_white_background"
             />
         <EditText
             android:inputType="textPassword"
             android:paddingRight="@dimen/dp15"
-            android:fontFamily="@font/bold"
+            android:fontFamily="@font/medium"
             android:layout_marginLeft="@dimen/dp15"
             android:layout_marginRight="@dimen/dp15"
             android:layout_marginBottom="@dimen/dp15"
             android:layout_marginTop="@dimen/dp9"
-            android:textColor="#474B52"
+            android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp12"
-            android:textColorHint="#474B52"
+            android:textColorHint="@color/grid_text_color"
             android:hint="Password"
             android:paddingLeft="@dimen/dp15"
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp45"
+            android:layout_height="@dimen/dp60"
             android:background="@drawable/edittext_white_background"
             />
 
@@ -101,14 +101,14 @@
             android:textAllCaps="false"
             android:gravity="center"
             android:fontFamily="@font/semi_bold"
-            android:textColor="#25272B"
+            android:textColor="@color/white"
             android:text="@string/login"
             android:onClick="onLoginClick"
             android:layout_marginBottom="@dimen/dp9"
             android:layout_marginTop="@dimen/dp9"
             android:layout_width="@dimen/dp150"
             android:layout_height="@dimen/dp45"
-            android:background="@drawable/edittext_white_background"/>
+            android:background="@drawable/button_background"/>
 
     </LinearLayout>
 
@@ -121,6 +121,10 @@
         android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <ImageView
+            android:src="@drawable/company_logo"
+            android:layout_width="@dimen/dp150"
+            android:layout_height="@dimen/dp150"/>
 
         <TextView
             android:onClick="onRegisterClick"
@@ -130,7 +134,7 @@
             android:layout_marginRight="@dimen/dp15"
             android:layout_marginLeft="@dimen/dp15"
             android:layout_marginTop="@dimen/dp15"
-            android:textColor="#B1B2B3"
+            android:textColor="@color/grid_text_color"
             android:text="@string/don_t_have_an_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

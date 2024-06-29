@@ -11,16 +11,17 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.smart.access.control.R;
+import com.smart.access.control.modals.GridItem;
 
 import java.util.ArrayList;
 
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
-    private ArrayList<String> itemList;
+    private ArrayList<GridItem> itemList;
     private LayoutInflater inflater;
     private OnItemClickListener listener;
 
 
-    public GridAdapter(Context context, ArrayList<String> itemList) {
+    public GridAdapter(Context context, ArrayList<GridItem> itemList) {
         this.itemList = itemList;
         this.inflater = LayoutInflater.from(context);
     }
@@ -33,13 +34,12 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.tvTitle.setText(itemList.get(position));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (listener != null) {
-                    listener.onItemClick(position);
-                }
+       GridItem item =itemList.get(position);
+        holder.tvTitle.setText(item.getTitle());
+        holder.img.setImageResource(item.getImg());
+        holder.itemView.setOnClickListener(view -> {
+            if (listener != null) {
+                listener.onItemClick(position);
             }
         });
     }
@@ -51,10 +51,12 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle;
+        ImageView img;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle);
+            img = itemView.findViewById(R.id.img);
         }
     }
 

@@ -2,6 +2,7 @@ package com.smart.access.control.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -41,6 +42,7 @@ import com.smart.access.control.R;
 import com.smart.access.control.adapters.GridAdapter;
 import com.smart.access.control.adapters.UserListAdapter;
 import com.smart.access.control.constants.ReplyCode;
+import com.smart.access.control.modals.GridItem;
 import com.smart.access.control.services.BleAdapterService;
 import com.smart.access.control.services.LocationService;
 import com.smart.access.control.services.Utils;
@@ -91,33 +93,37 @@ public class UserOperationActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("User Operations");
     }
 
     @NonNull
-    private static ArrayList<String> getStringArrayList() {
-        ArrayList<String> itemList = new ArrayList<String>();
-        itemList.add("Add User");
-        itemList.add("Delete User");
-        itemList.add("Delete All User");
-        itemList.add("View All User");
-        itemList.add("Read Specific User");
-        itemList.add("Enable Access for  X days");
-        itemList.add("Change Master Password");
-        itemList.add("Change BT Password");
-        itemList.add("Change FS Password");
-        itemList.add("Change Device Name");
-        itemList.add("Change Relay On Time");
-        itemList.add("Change Device Type");
-        itemList.add("Change Floor Access");
-        itemList.add("Read Floor Access");
-        itemList.add("Read Device Type");
+    private static ArrayList<GridItem> getStringArrayList() {
+        ArrayList<GridItem> itemList = new ArrayList<GridItem>();
+        itemList.add(new GridItem("Add User", R.drawable.add_user));
+        itemList.add(new GridItem("Delete User", R.drawable.delete_user));
+        itemList.add(new GridItem("Delete All User", R.drawable.delete_user));
+        itemList.add(new GridItem("View All User", R.drawable.view_user));
+        itemList.add(new GridItem("Read Specific User", R.drawable.view_user));
+        itemList.add(new GridItem("Enable Access for  X days", R.drawable.enable_access));
+        itemList.add(new GridItem("Change Master Password", R.drawable.change_password));
+        itemList.add(new GridItem("Change BT Password", R.drawable.change_password));
+        itemList.add(new GridItem("Change FS Password", R.drawable.change_password));
+        itemList.add(new GridItem("Change Device Name", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Relay On Time", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Device Type", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Floor Access", R.drawable.change_functions));
+        itemList.add(new GridItem("Read Floor Access", R.drawable.change_functions));
+        itemList.add(new GridItem("Read Device Type", R.drawable.change_functions));
         return itemList;
     }
 
     private void setRecyclerView() {
 
-        ArrayList<String> itemList = getStringArrayList();
+        ArrayList<GridItem> itemList = getStringArrayList();
 
         recyclerView = findViewById(R.id.recyclerView);
         gridAdapter = new GridAdapter(this, itemList);
