@@ -83,10 +83,10 @@ public class LoginActivity extends AppCompatActivity {
                             sessionManager.setUserData(SessionManager.TOKEN,token);
                             getUserInformationCall(token,etPassword.getText().toString());
                         } else {
-                            Utils.showToast(apiResponse.getMessage(), context);
+                            Utils.showToast(response.message(), context);
                         }
                     } else {
-                        Utils.showToast(apiResponse.getMessage(), context);
+                        Utils.showToast(response.message(), context);
                     }
                 }
 

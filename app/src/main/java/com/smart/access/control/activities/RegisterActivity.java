@@ -115,21 +115,19 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                     LoginResponse apiResponse = response.body();
-                    if (response.isSuccessful()) {
-                        if (apiResponse != null) {
-                            goToLogin();
-
-                        } else {
-                            Utils.showToast(apiResponse.getMessage(), context);
-                        }
-                    } else {
+                    if (response.isSuccessful() && apiResponse!=null) {
                         Utils.showToast(apiResponse.getMessage(), context);
+                        goToLogin();
+                    }
+                    else {
+                        Utils.showToast(getString(R.string.registration_unsuccessful), context);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
                     t.printStackTrace();
+                    Utils.showToast(getString(R.string.something_wrong), context);
                 }
             });
 

@@ -106,17 +106,17 @@ public class UserOperationActivity extends AppCompatActivity {
         itemList.add(new GridItem("Add User", R.drawable.add_user));
         itemList.add(new GridItem("Delete User", R.drawable.delete_user));
         itemList.add(new GridItem("Delete All User", R.drawable.delete_user));
-        itemList.add(new GridItem("View All User", R.drawable.view_user));
+        itemList.add(new GridItem("View All User", R.drawable.view_all_user));
         itemList.add(new GridItem("Read Specific User", R.drawable.view_user));
         itemList.add(new GridItem("Enable Access for  X days", R.drawable.enable_access));
         itemList.add(new GridItem("Change Master Password", R.drawable.change_password));
         itemList.add(new GridItem("Change BT Password", R.drawable.change_password));
         itemList.add(new GridItem("Change FS Password", R.drawable.change_password));
-        itemList.add(new GridItem("Change Device Name", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Device Name", R.drawable.change_device_name));
         itemList.add(new GridItem("Change Relay On Time", R.drawable.change_functions));
-        itemList.add(new GridItem("Change Device Type", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Device Type", R.drawable.change_device_type));
         itemList.add(new GridItem("Change Floor Access", R.drawable.change_functions));
-        itemList.add(new GridItem("Read Floor Access", R.drawable.change_functions));
+        itemList.add(new GridItem("Read Floor Access", R.drawable.read_acees));
         itemList.add(new GridItem("Read Device Type", R.drawable.change_functions));
         return itemList;
     }
