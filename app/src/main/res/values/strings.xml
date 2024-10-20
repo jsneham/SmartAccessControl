@@ -52,5 +52,7 @@
     <string name="user_list">Users</string>
     <string name="device_type">Device Type</string>
     <string name="change_master_password">Change Master Password</string>
-
+    <string name="hint_minute">Minute\n</string>
+    <string name="phone_number_help">9606009150</string>
+    <string name="whatsapp">https://api.whatsapp.com/send?phone=</string>
 </resources>

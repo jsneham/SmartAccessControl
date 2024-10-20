@@ -45,6 +45,7 @@ import com.smart.access.control.services.ScanResultsConsumer;
 import com.smart.access.control.services.Utils;
 import com.smart.access.control.utils.Urls;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,7 +82,7 @@ import java.util.List;
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            view = inflater.inflate(R.layout.fragment_home, container, false);
+            view = inflater.inflate(R.layout.fragment_home_copy, container, false);
             context = getContext();
             startServices();
             init();
@@ -97,10 +98,10 @@ import java.util.List;
         }
 
         private void init() {
-            btnUnit.setOnClickListener(view -> openGridActivity());
+//            btnUnit.setOnClickListener(view -> openGridActivity());
     //        btnUnit.setOnClickListener(view -> openMasterKeyPopUp());
 
-//            bleDeviceListAdapter = new BleListAdapter(context, unpairedBluetoothDeviceList);
+            bleDeviceListAdapter = new BleListAdapter(context, new ArrayList<>());
             listView = view.findViewById(R.id.deviceList);
             listView.setAdapter(bleDeviceListAdapter);
 

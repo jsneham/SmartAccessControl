@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -30,11 +31,16 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +57,7 @@ import com.smart.access.control.utils.RandomHexBytesUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class UserOperationActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -80,6 +87,13 @@ public class UserOperationActivity extends AppCompatActivity {
     private Intent mServiceIntent;
     private boolean mBound = false;
 
+    private long timeCountInMilliSeconds = 5 * 60000;
+    private CountDownTimer countDownTimer;
+    private ProgressBar progressBarCircle;
+    private TextView textViewTime;
+
+    private AlertDialog alertDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,17 +119,17 @@ public class UserOperationActivity extends AppCompatActivity {
         ArrayList<GridItem> itemList = new ArrayList<GridItem>();
         itemList.add(new GridItem("Add User", R.drawable.add_user));
         itemList.add(new GridItem("Delete User", R.drawable.delete_user));
-        itemList.add(new GridItem("Delete All User", R.drawable.delete_user));
+        itemList.add(new GridItem("Delete All User", R.drawable.delete_all_user));
         itemList.add(new GridItem("View All User", R.drawable.view_all_user));
         itemList.add(new GridItem("Read Specific User", R.drawable.view_user));
         itemList.add(new GridItem("Enable Access for  X days", R.drawable.enable_access));
-        itemList.add(new GridItem("Change Master Password", R.drawable.change_password));
-        itemList.add(new GridItem("Change BT Password", R.drawable.change_password));
+        itemList.add(new GridItem("Change Master Password", R.drawable.change_master_password));
+        itemList.add(new GridItem("Change BT Password", R.drawable.change_bluetooth_password));
         itemList.add(new GridItem("Change FS Password", R.drawable.change_password));
         itemList.add(new GridItem("Change Device Name", R.drawable.change_device_name));
-        itemList.add(new GridItem("Change Relay On Time", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Relay On Time", R.drawable.change_on_time));
         itemList.add(new GridItem("Change Device Type", R.drawable.change_device_type));
-        itemList.add(new GridItem("Change Floor Access", R.drawable.change_functions));
+        itemList.add(new GridItem("Change Floor Access", R.drawable.change_floor_access));
         itemList.add(new GridItem("Read Floor Access", R.drawable.read_acees));
         itemList.add(new GridItem("Read Device Type", R.drawable.change_functions));
         return itemList;
@@ -142,7 +156,7 @@ public class UserOperationActivity extends AppCompatActivity {
                         openDeleteUserPopUp();
                         break;
                     case 2:
-                        openDeleteAllUserPopUp();
+                        deleteAllUserConfirmation();
                         break;
                     case 3:
                         openViewAllUserPopUp();
@@ -185,6 +199,30 @@ public class UserOperationActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    public void deleteAllUserConfirmation() {
+
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Delete All Users");
+        builder.setMessage("Are you sure want to delete all users?");
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                openDeleteAllUserPopUp();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+
     }
 
     private void readDeviceType() {
@@ -358,10 +396,10 @@ public class UserOperationActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
             String numberInput = etPassword.getText().toString();
 
-//            if (Integer.parseInt(numberInput) > 999999) {
-//                etPassword.setError("Please Enter Password");
-//                return;
-//            }
+            if (numberInput.length() < 6) {
+                etPassword.setError("Please Enter valid password, the entered password should not be less than 6 digit [ 0 to 9]");
+                return;
+            }
             String number = Utils.stringToHex(numberInput);
             byte[] passwordByteArray = Utils.hexToByteArray(number);
             byte[] random4ByteArray = RandomHexBytesUtil.generateRandomBytes(4);
@@ -403,10 +441,11 @@ public class UserOperationActivity extends AppCompatActivity {
         btnSubmit.setOnClickListener(v -> {
             String numberInput = etPassword.getText().toString();
 
-//            if (Integer.parseInt(numberInput) > 999999) {
-//                etPassword.setError("Please Enter Password");
-//                return;
-//            }
+            if (numberInput.length() < 6) {
+                etPassword.setError("Please enter valid Password, it should be 6 alpha numeric characters.");
+                return;
+            }
+
             String number = Utils.stringToHex(numberInput);
             byte[] passwordByteArray = Utils.hexToByteArray(number);
             byte[] random4ByteArray = RandomHexBytesUtil.generateRandomBytes(4);
@@ -717,87 +756,94 @@ public class UserOperationActivity extends AppCompatActivity {
 
 
     private void openAddUserPopUp() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.add_user_master_key, null);
-        builder.setView(view);
-        final AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(true);
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.add_user_master_key, null);
+            builder.setView(view);
+            final AlertDialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(true);
 
-        EditText etInput = view.findViewById(R.id.etInput);
-        EditText etUserName = view.findViewById(R.id.etUserName);
-        TextView txtMsg = view.findViewById(R.id.txtMsg);
-        Button btnSubmit = view.findViewById(R.id.btnSubmit);
-        etUserName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Not needed
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Not needed
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // Check if the input is less than or equal to 500 characters
-                if (s.length() <= 500) {
-                    // Enable the submit button
-//                    txtMsg.setVisibility(View.VISIBLE);
-                    btnSubmit.setEnabled(true);
-                } else {
-                    // Disable the submit button
-//                    txtMsg.setVisibility(View.GONE);
-                    btnSubmit.setEnabled(false);
+            EditText etInput = view.findViewById(R.id.etInput);
+            EditText etUserName = view.findViewById(R.id.etUserName);
+            TextView txtMsg = view.findViewById(R.id.txtMsg);
+            Button btnSubmit = view.findViewById(R.id.btnSubmit);
+            etUserName.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // Not needed
                 }
-            }
-        });
-        btnSubmit.setOnClickListener(v -> {
-            String numberInput = etInput.getText().toString();
-            String userNameInput = etUserName.getText().toString();
-            if (Integer.parseInt(numberInput) > 500) {
-                etInput.setError("Please Enter Valid number");
-                return;
-            }
-            if (userNameInput.isEmpty() || userNameInput.length() > 8) {
-                etUserName.setError("Please Enter Valid username");
-                return;
-            }
-            String number = Integer.toHexString(Integer.parseInt(numberInput));
-            if (number.length() == 1) {
-                number = "000" + number;
-            } else if (number.length() == 2) {
-                number = "00" + number;
-            } else if (number.length() == 3) {
-                number = "0" + number;
-            }
-            String userName = Utils.stringToHex(userNameInput);
-            byte[] passwordByteArray = Utils.hexToByteArray(number);
-            byte[] userNameByteArray = Utils.hexToByteArray(userName);
 
-            byte[] startCommand = {0x02, (byte) 0x82, (byte) 0xFD, 0x0A, (byte) 0xFF};
-            byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    // Not needed
+                }
 
-            // Calculate total length for the resulting byte array
-            int totalLength = passwordByteArray.length + userNameByteArray.length + startCommand.length + endCommand.length;
+                @Override
+                public void afterTextChanged(Editable s) {
+                    // Check if the input is less than or equal to 500 characters
+                    if (s.length() <= 500) {
+                        // Enable the submit button
+                        //                    txtMsg.setVisibility(View.VISIBLE);
+                        btnSubmit.setEnabled(true);
+                    } else {
+                        // Disable the submit button
+                        //                    txtMsg.setVisibility(View.GONE);
+                        btnSubmit.setEnabled(false);
+                    }
+                }
+            });
+            btnSubmit.setOnClickListener(v -> {
+                String numberInput = etInput.getText().toString();
+                String userNameInput = etUserName.getText().toString();
+                if (Integer.parseInt(numberInput) > 500) {
+                    etInput.setError("Please Enter Valid number");
+                    return;
+                }
+                if (userNameInput.isEmpty() || userNameInput.length() > 8) {
+                    etUserName.setError("Please Enter Valid username");
+                    return;
+                }
+                String number = Integer.toHexString(Integer.parseInt(numberInput));
+                if (number.length() == 1) {
+                    number = "000" + number;
+                } else if (number.length() == 2) {
+                    number = "00" + number;
+                } else if (number.length() == 3) {
+                    number = "0" + number;
+                }
+                String userName = Utils.stringToHex(userNameInput);
+                byte[] passwordByteArray = Utils.hexToByteArray(number);
+                byte[] userNameByteArray = Utils.hexToByteArray(userName);
 
-            // Create a new byte array to hold the combined data
-            byte[] combinedByteArray = new byte[totalLength];
+                byte[] startCommand = {0x02, (byte) 0x82, (byte) 0xFD, 0x0A, (byte) 0xFF};
+                byte[] endCommand = {(byte) 0xFF, (byte) 0xFF, 0x0D};
 
-            // Copy data into the combinedByteArray
-            int index = 0;
-            System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
-            index += startCommand.length;
-            System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
-            index += passwordByteArray.length;
-            System.arraycopy(userNameByteArray, 0, combinedByteArray, index, userNameByteArray.length);
-            index += userNameByteArray.length;
-            System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
-            senMsgToBleDevice(combinedByteArray);
-            dialog.dismiss();
-        });
+                // Calculate total length for the resulting byte array
+                int totalLength = passwordByteArray.length + userNameByteArray.length + startCommand.length + endCommand.length;
 
-        dialog.show();
+                // Create a new byte array to hold the combined data
+                byte[] combinedByteArray = new byte[totalLength];
+
+                // Copy data into the combinedByteArray
+                int index = 0;
+                System.arraycopy(startCommand, 0, combinedByteArray, index, startCommand.length);
+                index += startCommand.length;
+                System.arraycopy(passwordByteArray, 0, combinedByteArray, index, passwordByteArray.length);
+                index += passwordByteArray.length;
+                System.arraycopy(userNameByteArray, 0, combinedByteArray, index, userNameByteArray.length);
+                index += userNameByteArray.length;
+                System.arraycopy(endCommand, 0, combinedByteArray, index, endCommand.length);
+                senMsgToBleDevice(combinedByteArray);
+                dialog.dismiss();
+
+                showAddUserCommentPopup();
+                startCountDownTimer();
+            });
+
+            dialog.show();
+        } catch (Exception e) {
+
+        }
 
     }
 
@@ -815,6 +861,84 @@ public class UserOperationActivity extends AppCompatActivity {
             showToast("Please connect to SAC first before write Characteristic", Toast.LENGTH_SHORT);
         }
 
+    }
+
+
+    private void stopTimerPopup() {
+        stopCountDownTimer();
+        alertDialog.dismiss();
+    }
+
+    private void stopCountDownTimer() {
+        countDownTimer.cancel();
+    }
+    private void showAddUserCommentPopup() {
+        int time = 0;
+        // Inflate the custom layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View customView = inflater.inflate(R.layout.dialog_custom, null);
+
+        // Initialize the views in the custom layout
+        progressBarCircle = customView.findViewById(R.id.progressBarCircle);
+        textViewTime = customView.findViewById(R.id.textViewTime);
+
+        // Create the AlertDialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(customView);
+
+        // Create the AlertDialog
+        alertDialog = builder.create();
+
+        // Show the dialog
+        alertDialog.show();
+
+        // Initialize the progress bar values
+        setProgressBarValues();
+        // Start the countdown timer
+        startCountDownTimer();
+
+
+    }
+
+
+    /**
+     * Method to start the countdown timer
+     */
+    private void startCountDownTimer() {
+        countDownTimer = new CountDownTimer(timeCountInMilliSeconds, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                textViewTime.setText(hmsTimeFormatter(millisUntilFinished));
+                progressBarCircle.setProgress((int) (millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+                textViewTime.setText(hmsTimeFormatter(0));
+                alertDialog.dismiss();
+            }
+        }.start();
+    }
+
+    /**
+     * Method to set circular progress bar values
+     */
+    private void setProgressBarValues() {
+        progressBarCircle.setMax((int) timeCountInMilliSeconds / 1000);
+        progressBarCircle.setProgress((int) timeCountInMilliSeconds / 1000);
+    }
+
+    /**
+     * Method to convert milliseconds to time format
+     *
+     * @param milliSeconds
+     * @return HH:mm:ss time formatted string
+     */
+    private String hmsTimeFormatter(long milliSeconds) {
+        return String.format("%02d:%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(milliSeconds),
+                TimeUnit.MILLISECONDS.toMinutes(milliSeconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliSeconds)),
+                TimeUnit.MILLISECONDS.toSeconds(milliSeconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliSeconds)));
     }
 
     private void showToast(String message, int duration) {
@@ -836,6 +960,8 @@ public class UserOperationActivity extends AppCompatActivity {
             bluetoothLeAdapter = binder.getService();
             bluetoothLeAdapter.setActivityHandler(messageHandler);
             mBound = true;
+            invalidateOptionsMenu();
+
         }
 
         @Override
@@ -861,6 +987,7 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast(bundle.getString(BleAdapterService.PARCEL_TEXT), Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_CONNECTED:
+                    invalidateOptionsMenu();
                     showToast("CONNECTED", Toast.LENGTH_SHORT);
                     bluetoothLeAdapter.discoverServices();
                     break;
@@ -938,16 +1065,19 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast("OPERATION_NOT_ALLOWED", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_REGISTRATION_SUCCESSFUL:
+                    stopTimerPopup();
                     showToast("USER_REGISTRATION_SUCCESSFUL", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_REGISTRATION_FAILED:
+                    stopTimerPopup();
                     showToast("USER_REGISTRATION_FAILED", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_ALREADY_EXIST:
+                    stopTimerPopup();
                     showToast("USER_ALREADY_EXIST", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_REGISTRATION_IN_PROCESS:
-//                    showToast("USER_REGISTRATION_IN_PROCESS", Toast.LENGTH_SHORT);
+                    showToast("USER_REGISTRATION_IN_PROCESS", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.REMOVE_FINGER:
                     showToast("REMOVE_FINGER", Toast.LENGTH_SHORT);
@@ -959,6 +1089,7 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast("PLACE_SAME_FINGER_AGAIN", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_REGISTRATION_TIMEOUT:
+                    stopTimerPopup();
                     showToast("USER_REGISTRATION_TIMEOUT", Toast.LENGTH_SHORT);
                     break;
                 case ReplyCode.USER_FINGER_IMAGE_TOO_NOISY:
@@ -1068,7 +1199,7 @@ public class UserOperationActivity extends AppCompatActivity {
                     showToast("DEVICE_NAME_UPDATE_SUCCESSFULLY", Toast.LENGTH_SHORT);
                     break;
 
-                 case ReplyCode.DEVICE_NAME_UPDATE_DECLINE:
+                case ReplyCode.DEVICE_NAME_UPDATE_DECLINE:
                     showToast("DEVICE_NAME_UPDATE_DECLINE", Toast.LENGTH_SHORT);
                     break;
 
@@ -1078,6 +1209,7 @@ public class UserOperationActivity extends AppCompatActivity {
             }
         }
     }
+
 
     private void showDeviceInfo(byte[] values) {
         if (values == null || values.length < 15) {
@@ -1111,11 +1243,10 @@ public class UserOperationActivity extends AppCompatActivity {
         final AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(true);
         ListView lvUsers = view.findViewById(R.id.lvUsers);
-       TextView  tvNoUser = view.findViewById(R.id.tvNoUser);
-        if(userDetailsList.isEmpty()){
+        TextView tvNoUser = view.findViewById(R.id.tvNoUser);
+        if (userDetailsList.isEmpty()) {
             tvNoUser.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             UserListAdapter adapter = new UserListAdapter(this, userDetailsList);
             lvUsers.setAdapter(adapter);
         }
@@ -1237,5 +1368,42 @@ public class UserOperationActivity extends AppCompatActivity {
         startActivity(new Intent(this, UserOperationActivity.class));
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_menu, menu);
+        return true;
+    }
+
+
+
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem settingsItem = menu.findItem(R.id.action_on_off);
+
+        if (bluetoothLeAdapter.isConnected() && (bluetoothLeAdapter != null)) {
+            settingsItem.setIcon(R.drawable.on); // Update the icon
+            settingsItem.setTitle("Connected"); // Update the text
+        } else {
+            settingsItem.setIcon(R.drawable.off);
+            settingsItem.setTitle("Disconnected");
+        }
+        return true; // Ensure the menu is prepared properly
+    }
 
 }

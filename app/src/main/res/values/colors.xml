@@ -71,4 +71,5 @@
     <color name="unselected_color">#98949c</color>
     <color name="grid_text_color">#433f48</color>
     <color name="grid_icon_color">#EDEDEF</color>
+    <color name="bluetooth_list_item">#0040FF</color>
 </resources>
