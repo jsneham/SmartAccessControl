@@ -12,12 +12,12 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -30,14 +30,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -47,6 +48,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ActionTypes;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.interfaces.ItemChangeListener;
+import com.denzcoskun.imageslider.interfaces.ItemClickListener;
+import com.denzcoskun.imageslider.interfaces.TouchListener;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.smart.access.control.R;
 import com.smart.access.control.activities.HomeGridActivity;
 import com.smart.access.control.activities.UserOperationActivity;
@@ -62,11 +70,14 @@ import com.smart.access.control.services.ScanResultsConsumer;
 import com.smart.access.control.services.Utils;
 import com.smart.access.control.utils.Urls;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
@@ -74,7 +85,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     private View view;
     private Context context;
     private Toast toast;
-    private ListView listView;
     private ListView unpairedDeviceList;
     private LocationService mLocationService;
 
@@ -116,6 +126,12 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     private LinearLayout indicatorLayout ;
     private ViewPager viewPager;
 
+    private long timeCountInMilliSeconds = 10 * 60000;
+    private CountDownTimer countDownTimer;
+    private ProgressBar progressBarCircle;
+    private TextView textViewTime;
+    private AlertDialog alertDialog;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,7 +148,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         checkPermissions();
         setRecyclerView(view);
         onSliderCall();
-
         return view;
     }
 
@@ -145,6 +160,30 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         itemList.add("30:C9:22:D8:5E:7A");
         itemList.add("30:C9:22:16:D7:6E");
         itemList.add("A4:CF:12:43:5A:62");
+        itemList.add("FC:B4:67:E1:3A:5A");
+        itemList.add("FC:B4:67:E0:14:9A");
+        itemList.add("FC:B4:67:E1:07:AA");
+        itemList.add("FC:B4:67:E0:13:DE");
+        itemList.add("FC:B4:67:E0:E2:26");
+        itemList.add("30:C9:22:D8:5C:B2");
+        itemList.add("FC:B4:67:E1:39:DA");
+        itemList.add("FC:B4:67:E0:CE:6A");
+        itemList.add("FC:B4:67:E7:B9:76");
+        itemList.add("FC:B4:67:E0:F1:22");
+        itemList.add("FC:B4:67:E0:BB:CA");
+        itemList.add("30:C9:22:16:DD:76");
+        itemList.add("FC:B4:67:E7:CC:7E");
+        itemList.add("FC:B4:67:E0:DC:B6");
+        itemList.add("FC:B4:67:E0:63:22");
+        itemList.add("C8:F0:9E:30:13:32");
+        itemList.add("FC:B4:67:E1:FA:52");
+        itemList.add("E0:65:B8:14:A0:4E");
+        itemList.add("30:C9:22:D8:5C:82");
+        itemList.add("E4:65:B8:14:A0:4E");
+        itemList.add("FC:B4:67:E1:06:AA");
+
+
+
         return itemList;
     }
 
@@ -154,10 +193,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         ArrayList<GridItem> itemList = new ArrayList<>();
         itemList.add(new GridItem("User Management", R.drawable.user_management));
         itemList.add(new GridItem("Enable Temp Access  (1min)", R.drawable.temp_access));
-//        itemList.add(new GridItem("Dummy", 3));
-//        itemList.add(new GridItem("Dummy", 4));
-//        itemList.add(new GridItem("Dummy", 2));
-//        itemList.add(new GridItem("Dummy", 5));
 
         recyclerView = view.findViewById(R.id.recyclerView);
         gridAdapter = new GridAdapter(context, itemList);
@@ -165,30 +200,27 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         recyclerView.setAdapter(gridAdapter);
 
         // Set item click listener
-        gridAdapter.setOnItemClickListener(new GridAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                if (bluetoothLeAdapter.isConnected() && isBLEDeviceConnected) {
-                    switch (position) {
-                        case 0:
+        gridAdapter.setOnItemClickListener(position -> {
+            if (bluetoothLeAdapter.isConnected() && isBLEDeviceConnected) {
+                switch (position) {
+                    case 0:
 
-                            openMasterKeyPopUp();
+                        openMasterKeyPopUp();
 
-                            break;
-                        case 1:
-                            sendEnableTempAccess();
-                            break;
+                        break;
+                    case 1:
+                        sendEnableTempAccess();
+                        break;
 
-                    }
-                } else {
-                    if (deviceName == null) {
-                        showToast("Device is not connected.", Toast.LENGTH_SHORT);
-                    } else
-                        showToast("Device is not connected,Please connect to " + deviceName, Toast.LENGTH_SHORT);
                 }
-
-
+            } else {
+                if (deviceName == null) {
+                    showToast("Device is not connected.", Toast.LENGTH_SHORT);
+                } else
+                    showToast("Device is not connected,Please connect to " + deviceName, Toast.LENGTH_SHORT);
             }
+
+
         });
 
 
@@ -216,100 +248,44 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     }
 
     private void init() {
-
-//        unpairedBluetoothAdapter = new BleListAdapter(context);
         unpairedBluetoothDeviceList =new ArrayList<>();
-
-
-//        listView = view.findViewById(R.id.deviceList);
-//        listView.setAdapter(bleDeviceListAdapter);
-
-//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//
-//        if (bluetoothAdapter == null) {
-//            // Device does not support Bluetooth
-//            showToast("Bluetooth is not supported on this device", Toast.LENGTH_SHORT);
-//        } else {
-//            // Bluetooth is supported
-//            if (!bluetoothAdapter.isEnabled()) {
-//                // Bluetooth is not enabled, prompt user to enable it
-//                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-//            } else {
-//                // Bluetooth is enabled, show paired and unpaired devices
-//                showPairedDevices();
-////                showUnpairedDevices();
-//            }
-//        }
     }
 
     private void onSliderCall() {
-        ArrayList<Integer> sliders = new ArrayList<Integer>();
-
-        sliders.add(R.drawable.slider_one);
-        sliders.add(R.drawable.slider_two);
-        viewPager= view.findViewById(R.id.viewPager);
-        indicatorLayout = view.findViewById(R.id.indicatorLayout);
 
 
-        Context context = getContext();
-        if (context == null) {
-            return;
-        }
-        SliderAdapter adapter = new SliderAdapter(context, sliders);
-        if (viewPager != null) {
-            viewPager.setAdapter(adapter);
-            setupIndicator(sliders.size());
-            int pageMargin = getResources().getDimensionPixelOffset(R.dimen.dp10);
-            viewPager.setPageMargin(pageMargin);
+        ImageSlider imageSlider= view.findViewById(R.id.imageSlider);
 
-            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        ArrayList<SlideModel> imageList = new ArrayList<>(); // Create image list
 
-                @Override
-                public void onPageSelected(int position) {
-                    updateIndicator(position);
-                }
+            imageList.add(new SlideModel(R.drawable.slider_one, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_two, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_three, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_four, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_five, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_six, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_seven, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_eight, ScaleTypes.FIT));
+            imageList.add(new SlideModel(R.drawable.slider_nine, ScaleTypes.FIT));
 
-                @Override
-                public void onPageScrollStateChanged(int state) {}
-            });
-        }
-    }
 
-    private void updateIndicator(int position) {
-        int childCount = indicatorLayout.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            ImageView imageView = (ImageView) indicatorLayout.getChildAt(i);
-            if (i == position) {
-                imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.indicator_active));
-            } else {
-                imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.indicator_inactive));
+        imageSlider.setImageList(imageList, ScaleTypes.FIT);
+
+
+        imageSlider.setItemChangeListener(new ItemChangeListener() {
+            @Override
+            public void onItemChanged(int position) {
+                // System.out.println("Pos: " + position);
             }
-        }
-    }
+        });
 
-
-    private void setupIndicator(int count) {
-        ImageView[] indicators = new ImageView[count];
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        layoutParams.setMargins(8, 0, 8, 0);
-
-        for (int i = 0; i < indicators.length; i++) {
-            indicators[i] = new ImageView(context);
-            indicators[i].setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.indicator_inactive));
-            indicators[i].setLayoutParams(layoutParams);
-            indicatorLayout.addView(indicators[i]);
-        }
-
-        // Make sure to only set the active indicator if count is greater than 0
-        if (count > 0) {
-            indicators[0].setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.indicator_active));
-        }
+        imageSlider.setTouchListener((touched, position) -> {
+            if (touched == ActionTypes.DOWN) {
+                imageSlider.stopSliding();
+            } else if (touched == ActionTypes.UP) {
+                imageSlider.startSliding(1000);
+            }
+        });
     }
 
 
@@ -328,72 +304,22 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         }
     }
 
-    private void showUnpairedDevices() {
-        // Check if location permission is granted
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (hasRequiredPermissions()) {
-                checkService();
-                if (bleScanner.isScanning()) {
-                    startScanning();
-                } else {
-                    onScan();
-                }
-//                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-//                    // TODO: Consider calling
-//                    //    ActivityCompat#requestPermissions
-//                    // here to request the missing permissions, and then overriding
-//                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                    //                                          int[] grantResults)
-//                    // to handle the case where the user grants the permission. See the documentation
-//                    // for ActivityCompat#requestPermissions for more details.
-//                    return;
-//                }
-//                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//                context.registerReceiver(receiver, filter);
-//                bluetoothAdapter.startDiscovery();
-            } else {
-                requestPermissions();
-            }
-        }
-    }
-
-
-    private void showPairedDevices() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                bleDeviceListAdapter.addDevice(device);
-            }
-        } else {
-//            bleDeviceListAdapter.add("No paired devices found");
-        }
-    }
 
 
     private void onConnect() {
-        showToast("onConnect", Toast.LENGTH_SHORT);
+//        showToast("onConnect", Toast.LENGTH_SHORT);
         if (bluetoothLeAdapter != null) {
             if (bluetoothLeAdapter.connect(deviceAddress)) {
-                showToast("onConnect: connect", Toast.LENGTH_SHORT);
+//                showToast("onConnect: connect", Toast.LENGTH_SHORT);
             } else {
                 isBLEDeviceConnected = false;
                 getActivity().invalidateOptionsMenu();
-                showToast("onConnect: failed to connect", Toast.LENGTH_SHORT);
+//                showToast("onConnect: failed to connect", Toast.LENGTH_SHORT);
             }
         } else {
             isBLEDeviceConnected = false;
             getActivity().invalidateOptionsMenu();
-            showToast("onConnect: bluetooth_le_adapter=null", Toast.LENGTH_SHORT);
+//            showToast("onConnect: bluetooth_le_adapter=null", Toast.LENGTH_SHORT);
         }
 
 //        startTimerForPopup();
@@ -401,16 +327,45 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
     private void startTimerForPopup(String Messages) {
         // Create a Handler to run the code after 10 seconds
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(Messages + deviceName + " ...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(false); // Prevent dismissing by tapping outside
-        progressDialog.show();
+//        progressDialog = new ProgressDialog(context);
+//        progressDialog.setMessage(Messages + deviceName + " ...");
+//        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//        progressDialog.setCancelable(false); // Prevent dismissing by tapping outside
+//        progressDialog.show();
+
+
+        int time = 0;
+        // Inflate the custom layout
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View customView = inflater.inflate(R.layout.dialog_custom_timer, null);
+
+        // Initialize the views in the custom layout
+        progressBarCircle = customView.findViewById(R.id.progressBarCircle);
+        textViewTime = customView.findViewById(R.id.textViewTime);
+        TextView tvMessage = customView.findViewById(R.id.tvMessage);
+        tvMessage.setText("Waiting for the connection");
+
+        // Create the AlertDialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(customView);
+
+        // Create the AlertDialog
+        alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Show the dialog
+        alertDialog.show();
+
+        // Initialize the progress bar values
+        setProgressBarValues();
+        // Start the countdown timer
+        startCountDownTimer();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressDialog.dismiss();
+//                progressDialog.dismiss();
+                alertDialog.dismiss();
                 if (isBLEDeviceConnected) {
                     showToast("Connected to " + deviceName, Toast.LENGTH_SHORT);
                 } else {
@@ -422,54 +377,11 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     }
 
 
-    private void openGridActivity() {
 
-        if (isDeviceConnected(device)) {
-            Intent in = new Intent(context, HomeGridActivity.class);
-            startActivity(in);
-        } else {
-            showToast("Connect Your device to ", Toast.LENGTH_SHORT);
-        }
-    }
 
-    private boolean isDeviceConnected(BluetoothDevice device) {
-        if (device == null) {
-            return false;
-        }
 
-        // Get the list of paired device names
-        Set<String> pairedDeviceNames = getPairedDeviceNames();
 
-        // Check if the given device name is in the list of paired device names
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return false;
-        }
-        return pairedDeviceNames.contains("");
-    }
 
-    private Set<String> getPairedDeviceNames() {
-        Set<String> pairedDeviceNames = new HashSet<>();
-
-        // Get the list of bonded devices
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-            for (BluetoothDevice device : bondedDevices) {
-                pairedDeviceNames.add(device.getName());
-            }
-        } else {
-            // Handle permission denial
-        }
-
-        return pairedDeviceNames;
-    }
 
 
     private boolean hasRequiredPermissions() {
@@ -501,7 +413,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         if (requestCode == REQUEST_PERMISSION_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 if (Arrays.stream(grantResults).allMatch(result -> result == PackageManager.PERMISSION_GRANTED)) {
-                    showToast("Permissions granted.", Toast.LENGTH_SHORT);
+//                    showToast("Permissions granted.", Toast.LENGTH_SHORT);
 //                    showPairedDevices();
                     checkPermissions();
                 } else {
@@ -549,34 +461,12 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     private void startServices() {
         Intent gattServiceIntent = new Intent(context, BleAdapterService.class);
         context.bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        showToast("Ready to find BLE devices", Toast.LENGTH_SHORT);
+//        showToast("Ready to find BLE devices", Toast.LENGTH_SHORT);
         bleScanner = new BleScanner(context);
     }
 
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                if (device != null && device.getBondState() != BluetoothDevice.BOND_BONDED) {
-//                    unpairedBluetoothAdapter.addDevice(device);
-                    unpairedBluetoothDeviceList.add(device);
-                }
-            }
-        }
-    };
+
 
     private final Handler messageHandler = new Handler() {
         @Override
@@ -585,7 +475,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             switch (msg.what) {
                 case BleAdapterService.MESSAGE:
                     bundle = msg.getData();
-                    showToast(bundle.getString(BleAdapterService.PARCEL_TEXT), Toast.LENGTH_SHORT);
+//                    showToast(bundle.getString(BleAdapterService.PARCEL_TEXT), Toast.LENGTH_SHORT);
                     break;
                 case BleAdapterService.GATT_CONNECTED:
                     startTimerForPopup("connecting to ");
@@ -607,10 +497,10 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                     List<BluetoothGattService> slist = bluetoothLeAdapter.getSupportedGattServices();
                     if (slist != null) {
                         for (BluetoothGattService svc : slist) {
-                            showToast("UUID=" + svc.getUuid().toString().toUpperCase() + " INSTANCE=" + svc.getInstanceId(), Toast.LENGTH_SHORT);
+//                            showToast("UUID=" + svc.getUuid().toString().toUpperCase() + " INSTANCE=" + svc.getInstanceId(), Toast.LENGTH_SHORT);
 
                             if (svc.getUuid().toString().equalsIgnoreCase(BleAdapterService.SERVICE_UUID)) {
-                                showToast(" uuid found", Toast.LENGTH_SHORT);
+//                                showToast(" uuid found", Toast.LENGTH_SHORT);
                                 continue;
                             }
                         }
@@ -620,8 +510,8 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                     break;
                 case BleAdapterService.GATT_CHARACTERISTIC_READ:
                     bundle = msg.getData();
-                    showToast("Service=" + bundle.getString(BleAdapterService.PARCEL_SERVICE_UUID).toUpperCase() +
-                            " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase(), Toast.LENGTH_SHORT);
+                    Log.d("TAG", "Service=" + bundle.getString(BleAdapterService.PARCEL_SERVICE_UUID).toUpperCase() +
+                            " Characteristic=" + bundle.getString(BleAdapterService.PARCEL_CHARACTERISTIC_UUID).toUpperCase());
                     break;
                 case BleAdapterService.GATT_CHARACTERISTIC_WRITTEN:
                     bundle = msg.getData();
@@ -663,9 +553,9 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         mServiceIntent = new Intent(context, mLocationService.getClass());
         if (!Utils.isMyServiceRunning(mLocationService.getClass(), getActivity())) {
             context.startService(mServiceIntent);
-            showToast(getString(R.string.service_start_successfully), Toast.LENGTH_SHORT);
+//            showToast(getString(R.string.service_start_successfully), Toast.LENGTH_SHORT);
         } else {
-            showToast(getString(R.string.service_already_running), Toast.LENGTH_SHORT);
+//            showToast(getString(R.string.service_already_running), Toast.LENGTH_SHORT);
         }
     }
 
@@ -697,7 +587,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 //                unpairedBluetoothAdapter.notifyDataSetChanged();
                 if(unpairedBluetoothDeviceList.size()>0)unpairedBluetoothDeviceList.clear();
             });
-            showToast(Urls.SCANNING, Toast.LENGTH_SHORT);
+//            showToast(Urls.SCANNING, Toast.LENGTH_SHORT);
             bleScanner.startScanning(this, scanTimeout);
         } else {
             Log.i(Urls.TAG, "Permission to perform Bluetooth scanning was not yet granted");
@@ -734,6 +624,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
     @Override
     public void scanningStarted() {
+        showProgressDialog();
         setScanState(true);
     }
 
@@ -742,6 +633,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         if (toast != null) {
             toast.cancel();
         }
+        hideProgressDialog();
         setScanState(false);
     }
 
@@ -846,48 +738,9 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
 
     private void showPopup() {
         context.startActivity(new Intent(context, UserOperationActivity.class));
-//        Handler handler = new Handler();
-//
-//        // Post a delayed action to show the popup after 10 minutes
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                // Call a method to show the popup
-//                showUserOperationPopUp();
-//            }
-//        }, DELAY_TIME_MS);
     }
 
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (bluetoothAdapter != null) {
-//            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-//                // TODO: Consider calling
-//                //    ActivityCompat#requestPermissions
-//                // here to request the missing permissions, and then overriding
-//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                //                                          int[] grantResults)
-//                // to handle the case where the user grants the permission. See the documentation
-//                // for ActivityCompat#requestPermissions for more details.
-//                return;
-//            }
-//            bluetoothAdapter.cancelDiscovery();
-//
-//        }
-//
-////        if (isMyServiceRunning(BleAdapterService.class)) {
-////            bluetoothLeAdapter.stopService(new Intent(context, BleAdapterService.class));
-////        }
-//
-//        if (bluetoothLeAdapter != null) {
-//            bluetoothLeAdapter.removeActivityHandler();
-//            context.unbindService(serviceConnection);
-//            bluetoothLeAdapter = null;
-//        }
-//
-//    }
 
 
     @Override
@@ -912,7 +765,11 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
                 bluetoothLeAdapter.setActivityHandler(messageHandler);
             }
         }
+
+        handleBackPress();
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -951,58 +808,6 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
         return false;
     }
 
-
-    private BroadcastReceiver mPairingRequestReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                int pin = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                device.createBond();
-                if (progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                    startTimerForPopup("Is Pairing to ");
-                }
-
-            }
-        }
-    };
-
-
-    private BroadcastReceiver mPairingResultReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
-                if (bondState == BluetoothDevice.BOND_BONDED) {
-                    // Device successfully bonded
-                    showToast("Device successfully bonded", Toast.LENGTH_SHORT);
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                    }
-                } else if (bondState == BluetoothDevice.BOND_NONE) {
-                    // Bonding failed or removed
-                    showToast("Bonding failed or removed", Toast.LENGTH_SHORT);
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                    }
-                }
-            }
-        }
-    };
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -1026,7 +831,7 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_on_off:
+            case R.id.action_ble:
 //                Toast.makeText(getActivity(), "connection clicked", Toast.LENGTH_SHORT).show();
                 showDeviceList();
                 return true;
@@ -1077,6 +882,81 @@ public class HomeFragment extends Fragment implements ScanResultsConsumer {
             throw new RuntimeException(e);
         }
 
+    }
+
+
+    private void showProgressDialog() {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Bluetooth Scan Started");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false); // Prevent dismissing by tapping outside
+        progressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if(progressDialog.isShowing()){
+            progressDialog.dismiss();
+        }
+    }
+
+
+    /**
+     * Method to start the countdown timer
+     */
+    private void startCountDownTimer() {
+        countDownTimer = new CountDownTimer(timeCountInMilliSeconds, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                textViewTime.setText(hmsTimeFormatter(millisUntilFinished));
+                progressBarCircle.setProgress((int) (millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+                textViewTime.setText(hmsTimeFormatter(0));
+                alertDialog.dismiss();
+            }
+        }.start();
+    }
+
+    /**
+     * Method to set circular progress bar values
+     */
+    private void setProgressBarValues() {
+        progressBarCircle.setMax((int) timeCountInMilliSeconds / 1000);
+        progressBarCircle.setProgress((int) timeCountInMilliSeconds / 1000);
+    }
+
+    /**
+     * Method to convert milliseconds to time format
+     *
+     * @param milliSeconds
+     * @return HH:mm:ss time formatted string
+     */
+    private String hmsTimeFormatter(long milliSeconds) {
+        return String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(milliSeconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliSeconds)),
+                TimeUnit.MILLISECONDS.toSeconds(milliSeconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliSeconds)));
+    }
+
+    private void handleBackPress() {
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event here
+                // For example, you can close the fragment or perform some action
+                if (ble_scanning) {
+                    bleScanner.stopScanning();
+                }
+                if (bluetoothLeAdapter.isConnected()) {
+                    bluetoothLeAdapter.disconnect();
+                }
+                if(alertDialog.isShowing()){
+                    alertDialog.dismiss();
+                }
+            }
+        });
     }
 
 }

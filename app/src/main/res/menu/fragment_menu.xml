@@ -6,4 +6,10 @@
         android:id="@+id/action_on_off"
         android:icon="@drawable/off"
         app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:title="Disconnected"
+        android:id="@+id/action_ble"
+        android:icon="@drawable/blutetooth_icon"
+        app:showAsAction="ifRoom|withText" />
 </menu>

@@ -51,4 +51,12 @@
         <item name="android:textColor">@color/theme_color_1</item>
         <item name="navigationIcon">@drawable/ic_backarrow</item>
     </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Remove the box stroke -->
+        <item name="boxStrokeColor">@color/screen_background_color</item>
+        <!-- Remove the box background -->
+        <item name="boxBackgroundMode">none</item>
+    </style>
+
 </resources>

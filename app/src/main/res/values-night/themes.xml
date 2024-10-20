@@ -33,4 +33,12 @@
         <item name="android:textColor">@color/gray_800</item>
         <item name="android:gravity">left</item>
     </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Remove the box stroke -->
+        <item name="boxStrokeColor">@color/screen_background_color</item>
+        <!-- Remove the box background -->
+        <item name="boxBackgroundMode">none</item>
+    </style>
+
 </resources>

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
+    android:id="@+id/llRoot"
     tools:context=".activities.LoginActivity">
 
     <ImageView
@@ -70,7 +71,7 @@
             android:textColor="@color/grid_text_color"
             android:textSize="@dimen/sp12"
             android:textColorHint="@color/grid_text_color"
-            android:hint="Username OR Email Id"
+            android:hint="Enter Email Id"
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp60"
@@ -121,6 +122,20 @@
         android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <Button
+            android:textSize="@dimen/sp14"
+            android:textAllCaps="false"
+            android:gravity="center"
+            android:fontFamily="@font/bold"
+            android:textColor="@color/theme_color_2"
+            android:text="Forget Password"
+            android:onClick="onPasswordClick"
+            android:layout_marginBottom="@dimen/dp9"
+            android:layout_marginTop="@dimen/dp9"
+            android:layout_width="@dimen/dp150"
+            android:layout_height="@dimen/dp45"
+            android:background="@drawable/button_background_border"/>
+
         <ImageView
             android:src="@drawable/company_logo"
             android:layout_width="@dimen/dp150"

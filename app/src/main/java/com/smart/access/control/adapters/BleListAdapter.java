@@ -69,13 +69,15 @@ public class BleListAdapter extends BaseAdapter {
                 // for ActivityCompat#requestPermissions for more details.
                 return null;
             }
-            String deviceName = device.getName();
+            String position = String.valueOf(i+1);
+            String deviceName =  position + ". " + device.getName();
             if (deviceName != null && deviceName.length() > 0) {
                 viewHolder.text.setText(deviceName);
             } else {
                 viewHolder.text.setText("unknown device");
             }
 //            viewHolder.bdaddr.setText(device.getAddress());
+            viewHolder.bdaddr.setVisibility(View.GONE);
         }
         return view;
     }

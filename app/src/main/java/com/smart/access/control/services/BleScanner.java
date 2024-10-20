@@ -69,8 +69,10 @@ public class BleScanner {
                         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                             return;
                         }
-                        scanner.stopScan(scan_callback);
-                        setScanning(false);
+                        if(scanner != null) {
+                            scanner.stopScan(scan_callback);
+                            setScanning(false);
+                        }
                     }
                 }
             },stop_after_ms);
@@ -114,6 +116,7 @@ public class BleScanner {
                         result.getRssi()
                 );
             } catch (Exception e) {
+                scan_results_consumer.scanningStopped();
                 Log.d("TAG", "onScanResult: ${e.message}");
             }
         }
@@ -122,6 +125,7 @@ public class BleScanner {
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
             Log.d(Urls.TAG, "onScanFailed");
+            scan_results_consumer.scanningStopped();
         }
     };
 
